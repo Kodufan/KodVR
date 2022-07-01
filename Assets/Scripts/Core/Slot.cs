@@ -127,4 +127,24 @@ public class Slot : IComparable
 	{
 		return name;
 	}
+
+	public void AttachPlane(Color albedo)
+	{
+		GameObject plane = GameObject.CreatePrimitive(PrimitiveType.Plane);
+		Material material = new Material(Shader.Find("Standard"));
+		MeshRenderer renderer = plane.GetComponent<MeshRenderer>();
+		plane.transform.position = this.position;
+		plane.transform.rotation = this.rotation;
+		plane.transform.localScale = this.scale;
+		plane.transform.SetParent(this.gameObject.transform);
+		material.color = albedo;
+		renderer.material = material;
+	}
+
+	public void AttachCharacterController()
+	{
+		GameObject controller = new GameObject("Character controller");
+		controller.AddComponent<CharacterController>();
+		controller.transform.SetParent(gameObject.transform);
+	}
 }

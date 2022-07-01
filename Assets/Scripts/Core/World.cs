@@ -37,14 +37,22 @@ public class World
 				subSubSlot.SetParent(subSlot);
 				Slot subCousinSlot = CreateSlot("D");
 				subCousinSlot.SetParent(subSlot);
+				root.AttachPlane(Color.grey);
 				break;
 			case WorldType.Space:
+				root.AttachPlane(Color.black);
 				break;
 			case WorldType.Gridspace:
+				root.AttachPlane(Color.white);
+				break;
+			case WorldType.Debug:
+				root.AttachPlane(Color.blue);
 				break;
 			case WorldType.Custom:
+				root.AttachPlane(Color.red);
 				break;
 		}
+		root.AttachCharacterController();
 	}
 
 	public void Focus()

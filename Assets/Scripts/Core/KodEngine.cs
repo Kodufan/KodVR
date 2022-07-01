@@ -22,7 +22,10 @@ public class KodEngine : MonoBehaviour
 
 		worldManager.LoadDefaultWorld();
 		worldManager.LoadWorld(WorldType.Gridspace);
-    }
+		worldManager.LoadWorld(WorldType.Debug);
+		WorldManager.FocusWorld(0);
+
+	}
 
     // Update is called once per frame
     void Update()

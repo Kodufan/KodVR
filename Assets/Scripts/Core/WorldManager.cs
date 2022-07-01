@@ -9,12 +9,14 @@ public class WorldManager
 	public static World focusedWorld;
 	public static int focusedWorldIndex;
 	public static GameObject worldRoot;
+	InputHandler _input = new InputHandler(new UnityInputHandler());
 
 	public WorldManager(GameObject gameObject)
 	{
 		worldRoot = new GameObject("World root");
 		focusedWorldIndex = -1;
 		worldRoot.transform.parent = gameObject.transform;
+		_input.ToggleSessionEvent += ToggleSession;
 	}
 
 	public World LoadDefaultWorld()
@@ -64,7 +66,27 @@ public class WorldManager
 		}
 	}
 
-    public void ExitWorld(World world)
+	public void ToggleSession()
+	{
+		//Debug.Log(focusedWorldIndex);
+		if (focusedWorldIndex == -1)
+		{
+			Debug.LogError("No world focused!");
+			return;
+		}
+
+		Debug.Log(focusedWorldIndex);
+		if (focusedWorldIndex + 1 <= worlds.Count - 1)
+		{
+			FocusWorld(focusedWorldIndex + 1);
+		} else
+		{
+			FocusWorld(0);
+		}
+	}
+
+
+	public void ExitWorld(World world)
 	{
 		world.Close();
 		worlds.Remove(world);

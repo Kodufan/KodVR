@@ -72,14 +72,26 @@ public class CharacterController : MonoBehaviour
 		{
 			_mainCamera = GameObject.FindGameObjectWithTag("MainCamera");
 		}
+
+		GameObject character = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+		character.transform.SetParent(this.transform);
+		GameObject camera = new GameObject("Camera");
+		UnityEngine.CharacterController controller = gameObject.AddComponent<UnityEngine.CharacterController>();
+		GroundLayers = LayerMask.GetMask("Default");
+		camera.AddComponent<Camera>();
+		CinemachineCameraTarget = camera;
+		_mainCamera = camera;
+		camera.transform.SetParent(this.transform);
 	}
 
 	private void Start()
 	{
-		_controller = GetComponent<UnityEngine.CharacterController>();
+		_controller = gameObject.GetComponent<UnityEngine.CharacterController>();
 		_input = new InputHandler(new UnityInputHandler());
 
-		_input.JumpEvent += JumpAndGravity;
+		Cursor.lockState = CursorLockMode.Locked;
+
+		_input.JumpEvent += Jump;
 
 		// reset our timeouts on start
 		_jumpTimeoutDelta = JumpTimeout;
@@ -90,6 +102,7 @@ public class CharacterController : MonoBehaviour
 	{
 		GroundedCheck();
 		Move();
+		UpdateGravity();
 	}
 
 	private void LateUpdate()
@@ -173,11 +186,16 @@ public class CharacterController : MonoBehaviour
 		_controller.Move(inputDirection.normalized * (_speed * Time.deltaTime) + new Vector3(0.0f, _verticalVelocity, 0.0f) * Time.deltaTime);
 	}
 
-	private void JumpAndGravity()
+	private void Jump()
 	{
-		Debug.Log("Jujujujampu!");
+		_verticalVelocity = (Grounded) ? Mathf.Sqrt(JumpHeight * -2f * Gravity) : _verticalVelocity;
+	}
+	
+	private void UpdateGravity()
+	{
 		if (Grounded)
 		{
+
 			// reset the fall timeout timer
 			_fallTimeoutDelta = FallTimeout;
 
@@ -185,13 +203,6 @@ public class CharacterController : MonoBehaviour
 			if (_verticalVelocity < 0.0f)
 			{
 				_verticalVelocity = -2f;
-			}
-
-			// Jump
-			if (_jumpTimeoutDelta <= 0.0f)
-			{
-				// the square root of H * -2 * G = how much velocity needed to reach desired height
-				_verticalVelocity = Mathf.Sqrt(JumpHeight * -2f * Gravity);
 			}
 
 			// jump timeout

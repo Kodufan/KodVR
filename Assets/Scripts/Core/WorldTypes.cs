@@ -7,5 +7,6 @@ public enum WorldType
 	Default,
 	Space,
 	Gridspace,
+	Debug,
 	Custom
 }
