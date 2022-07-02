@@ -7,7 +7,7 @@ public delegate void Update();
 public class KodEngine : MonoBehaviour
 {
 	private UnityInputHandler _unityInputActions;
-	private InputHandler _inputHandler;
+	public static InputHandler _inputHandler;
 
 	public static event Update OnCommonUpdate;
 
@@ -19,7 +19,7 @@ public class KodEngine : MonoBehaviour
 	// Start is called before the first frame update
 	void Start()
     {
-		InputHandler _inputHandler = new InputHandler(_unityInputActions);
+		_inputHandler = new InputHandler(_unityInputActions);
 		WorldManager worldManager = new WorldManager(gameObject);
 
 		//CharacterController characterController = new CharacterController(_inputHandler);

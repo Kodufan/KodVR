@@ -6,8 +6,32 @@ public class PBS_Metallic : Component
 {
 	public System.Uri shaderUri { get; set; }
 	public Material material { get; set; }
-	public Color albedo;
-	public Texture2D texture;
+	private Texture2D _texture;
+	public Texture2D texture
+	{
+		get
+		{
+			return _texture;
+		}
+		set
+		{
+			_texture = value;
+			OnChanged();
+		}
+	}
+	private Color _albedo = Color.white;
+	public Color albedo { 
+		get
+		{
+			return _albedo;
+		}
+		set
+		{
+			_albedo = value;
+			OnChanged();
+		}
+	}
+	
 
 	public override void OnAsleep()
 	{
@@ -18,7 +42,9 @@ public class PBS_Metallic : Component
 		owner.owningWorld.OnFocusGained += OnAwake;
 		owner.owningWorld.OnFocusLost += OnAsleep;
 		KodEngine.OnCommonUpdate += OnUpdate;
-		material = Resources.Load<Material>("Materials/Standard");
+		material = new Material(Shader.Find("Specular"));
+		UnityEditor.Presets.Preset preset = Resources.Load<UnityEditor.Presets.Preset>("Materials/PBS_Metallic");
+		preset.ApplyTo(material);
 	}
 
 	public override void OnAwake()
@@ -31,10 +57,12 @@ public class PBS_Metallic : Component
 
 	public override void OnUpdate()
 	{
-		if (albedo != null)
-		{
-			material.color = albedo;
 
-		}
+	}
+
+	public void OnChanged()
+	{
+		material.color = albedo;
+		material.mainTexture = texture.texture;
 	}
 }

@@ -35,20 +35,24 @@ public class World
 			case WorldType.Default:
 				Slot cube = new Slot("Cube", this);
 				cube.SetParent(root);
+				
 				Texture2D tex = cube.AttachComponent<Texture2D>();
+				tex.uri = new System.Uri("C:\\Program Files (x86)\\Steam\\userdata\\207376680\\760\\remote\\740250\\screenshots\\20220630194923_1.jpg");
+				
 				PBS_Metallic material = cube.AttachComponent<PBS_Metallic>();
+				material.texture = tex;
+
 				ProceduralBoxMesh mesh = cube.AttachComponent<ProceduralBoxMesh>();
 				MeshRenderer renderer = cube.AttachComponent<MeshRenderer>();
+				renderer.material = material;
+				
+				//tex.uri = new System.Uri("C:\\Users\\koduf\\Desktop\\Memes\\718c6523d13d52ea0d5decf15988d119d2d24305a72b1e680f5acb24e943295d_1.png");
+				//Slot cube2 = new Slot("Cube2", this);
+				//cube2.gameObject.transform.position = new Vector3(0, 1, 0);
+				//cube2.AttachComponent<ProceduralBoxMesh>();
+				//MeshRenderer render2 = cube2.AttachComponent<MeshRenderer>();
+				//render2.material = material;
 
-				tex.uri = new System.Uri("C:\\Users\\koduf\\Desktop\\Memes\\718c6523d13d52ea0d5decf15988d119d2d24305a72b1e680f5acb24e943295d_1.png");
-				material.texture = tex;
-				Slot cube2 = new Slot("Cube2", this);
-				cube2.gameObject.transform.position = new Vector3(0, 1, 0);
-				cube2.AttachComponent<ProceduralBoxMesh>();
-				MeshRenderer render2 = cube2.AttachComponent<MeshRenderer>();
-				render2.material = material;
-
-				//renderer.material = material;
 				root.AttachPlane(Color.grey);
 				break;
 			case WorldType.Space:

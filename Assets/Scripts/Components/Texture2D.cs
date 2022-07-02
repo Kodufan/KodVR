@@ -4,18 +4,25 @@ using UnityEngine;
 
 public class Texture2D : Component
 {
-	public System.Uri uri { get; set; }
+	private System.Uri _uri;
 
-	// Incorperate OnChanged functionality into setter
-	public UnityEngine.Texture2D texture
+	public System.Uri uri
 	{
-		get { return texture; }
+		get
+		{
+			return this._uri;
+		}
 		set
 		{
-			this.texture = texture;
+			_uri = value;
 			OnChanged();
 		}
 	}
+
+	// Incorperate OnChanged functionality into setter
+	
+	public UnityEngine.Texture2D texture { get; set; }
+
 
 	public override void OnAsleep()
 	{
@@ -26,9 +33,7 @@ public class Texture2D : Component
 		owner.owningWorld.OnFocusGained += OnAwake;
 		owner.owningWorld.OnFocusLost += OnAsleep;
 		KodEngine.OnCommonUpdate += OnUpdate;
-		uri = new System.Uri("C:\\Users\\koduf\\Downloads\\null.bmp");
-
-		
+		//Debug.Log(uri);
 	}
 
 	public override void OnAwake()
@@ -45,22 +50,17 @@ public class Texture2D : Component
 
 	public void OnChanged()
 	{
-		Start();
+		texture = Import(uri.ToString());
+		Debug.Log("Texture imported successfully to " + texture);
 	}
 
-	void Start()
+	public UnityEngine.Texture2D Import(string path)
 	{
-		DownloadImage(uri.ToString());
-	}
-
-	IEnumerator DownloadImage(string MediaUrl)
-	{
-		Debug.Log(MediaUrl);
-		UnityEngine.Networking.UnityWebRequest request = UnityEngine.Networking.UnityWebRequestTexture.GetTexture(MediaUrl);
-		yield return request.SendWebRequest();
-		if (request.result == UnityEngine.Networking.UnityWebRequest.Result.ConnectionError || request.result == UnityEngine.Networking.UnityWebRequest.Result.ProtocolError)
-			Debug.Log(request.error);
-		else
-			texture = ((UnityEngine.Networking.DownloadHandlerTexture)request.downloadHandler).texture;
+		UnityEngine.Texture2D texture;
+		path = path.Substring(8);
+		byte[] bytes = System.IO.File.ReadAllBytes(path);
+		texture = new UnityEngine.Texture2D(2, 2);
+		texture.LoadImage(bytes);
+		return texture;
 	}
 }

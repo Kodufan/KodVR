@@ -239,7 +239,7 @@ public class CharacterController : Component
 
 		// Gets the CharacterController component from the player object and initializes the Input Handler
 		_controller = _controllerObject.gameObject.GetComponent<UnityEngine.CharacterController>();
-		_input = new InputHandler(new UnityInputHandler());
+		_input = KodEngine._inputHandler;
 
 		Cursor.lockState = CursorLockMode.Locked;
 

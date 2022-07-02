@@ -134,7 +134,10 @@ public class Slot : IComparable
 	public void AttachPlane(Color albedo)
 	{
 		GameObject plane = GameObject.CreatePrimitive(PrimitiveType.Plane);
-		Material material = Resources.Load<Material>("Materials/Standard");
+		Material material = new Material(Shader.Find("Specular"));
+		UnityEditor.Presets.Preset preset = new UnityEditor.Presets.Preset(Resources.Load<UnityEditor.Presets.Preset>("Materials/PBS_Metallic"));
+		preset.ApplyTo(material);
+		
 		UnityEngine.MeshRenderer renderer = plane.GetComponent<UnityEngine.MeshRenderer>();
 		plane.transform.position = this.position;
 		plane.transform.rotation = this.rotation;
