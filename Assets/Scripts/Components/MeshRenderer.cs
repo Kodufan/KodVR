@@ -1,56 +1,93 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
+//using UnityEngine;
+using KodEngine.Core;
+using KodEngine.Component;
 
-public class MeshRenderer : Component
+namespace KodEngine.Component
 {
-	public Mesh mesh;
-	public PBS_Metallic material;
-	public BuiltInMaterial builtInMaterial;
-	private UnityEngine.MeshRenderer renderer;
-	private MeshFilter filter;
-	
-	public override void OnAsleep()
+	public class MeshRenderer : Core.Component
 	{
-	}
-
-	public override void OnAttach()
-	{
-		owner.owningWorld.OnFocusGained += OnAwake;
-		owner.owningWorld.OnFocusLost += OnAsleep;
-		KodEngine.OnCommonUpdate += OnUpdate;
-		renderer = owner.gameObject.AddComponent<UnityEngine.MeshRenderer>();
-		filter = owner.gameObject.AddComponent<MeshFilter>();
-
-		builtInMaterial = new BuiltInMaterial();
-		builtInMaterial.owner = owner;
-		builtInMaterial.OnAttach();
-	}
-
-	public override void OnAwake()
-	{
-	}
-
-	public override void OnDestroy()
-	{
-	}
-
-	public override void OnUpdate()
-	{
-		if (filter != null)
+		private Mesh _mesh;
+		public Mesh mesh
 		{
-			filter.mesh = mesh;
+			get
+			{
+				return _mesh;
+			}
+			set
+			{
+				_mesh = value;
+				OnChange();
+			}
 		}
 
-		if (renderer != null && material != null)
+		private PBS_Metallic _material;
+		public PBS_Metallic material
 		{
-			renderer.material = material.material;
-			//Debug.Log(material.material);
+			get
+			{
+				return _material;
+			}
+			set
+			{
+				_material = value;
+				OnChange();
+			}
+		}
+		public BuiltInMaterial builtInMaterial;
+		private UnityEngine.MeshRenderer renderer;
+		private UnityEngine.MeshFilter meshFilter;
+
+		public override void OnAsleep()
+		{
 		}
 
-		if (material == null)
+		public override void OnAttach()
 		{
-			renderer.material = builtInMaterial.material;
+			owner.owningWorld.OnFocusGained += OnAwake;
+			owner.owningWorld.OnFocusLost += OnAsleep;
+			Engine.OnCommonUpdate += OnUpdate;
+			renderer = owner.gameObject.AddComponent<UnityEngine.MeshRenderer>();
+			meshFilter = owner.gameObject.AddComponent<UnityEngine.MeshFilter>();
+
+			builtInMaterial = new BuiltInMaterial();
+			builtInMaterial.owner = owner;
+			builtInMaterial.OnAttach();
+		}
+
+		public override void OnAwake()
+		{
+		}
+
+		public override void OnDestroy()
+		{
+		}
+
+		public override void OnUpdate()
+		{
+
+
+			if (renderer != null && material != null)
+			{
+				renderer.material = material.material;
+				//Debug.Log(material.material);
+			}
+
+
+		}
+
+		public override void OnChange()
+		{
+			if (mesh != null)
+			{
+				meshFilter.mesh = mesh.meshObject.GetComponent<UnityEngine.MeshFilter>().mesh;
+			}
+
+			if (material == null)
+			{
+				renderer.material = builtInMaterial.material;
+			}
 		}
 	}
 }

@@ -1,68 +1,73 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
+//using UnityEngine;
+using KodEngine.Component;
 
-public class PBS_Metallic : Component
+namespace KodEngine.Component
 {
-	public System.Uri shaderUri { get; set; }
-	public Material material { get; set; }
-	private Texture2D _texture;
-	public Texture2D texture
+	public class PBS_Metallic : Core.Component
 	{
-		get
+		public System.Uri shaderUri { get; set; }
+		public UnityEngine.Material material { get; set; }
+		private Texture2D _texture;
+		public Texture2D texture
 		{
-			return _texture;
+			get
+			{
+				return _texture;
+			}
+			set
+			{
+				_texture = value;
+				OnChange();
+			}
 		}
-		set
+		private UnityEngine.Color _albedo = UnityEngine.Color.white;
+		public UnityEngine.Color albedo
 		{
-			_texture = value;
-			OnChanged();
+			get
+			{
+				return _albedo;
+			}
+			set
+			{
+				_albedo = value;
+				OnChange();
+			}
 		}
-	}
-	private Color _albedo = Color.white;
-	public Color albedo { 
-		get
+
+
+		public override void OnAsleep()
 		{
-			return _albedo;
 		}
-		set
+
+		public override void OnAttach()
 		{
-			_albedo = value;
-			OnChanged();
+			owner.owningWorld.OnFocusGained += OnAwake;
+			owner.owningWorld.OnFocusLost += OnAsleep;
+			Engine.OnCommonUpdate += OnUpdate;
+			material = new UnityEngine.Material(UnityEngine.Shader.Find("Specular"));
+			UnityEditor.Presets.Preset preset = UnityEngine.Resources.Load<UnityEditor.Presets.Preset>("Materials/PBS_Metallic");
+			preset.ApplyTo(material);
 		}
-	}
-	
 
-	public override void OnAsleep()
-	{
-	}
+		public override void OnAwake()
+		{
+		}
 
-	public override void OnAttach()
-	{
-		owner.owningWorld.OnFocusGained += OnAwake;
-		owner.owningWorld.OnFocusLost += OnAsleep;
-		KodEngine.OnCommonUpdate += OnUpdate;
-		material = new Material(Shader.Find("Specular"));
-		UnityEditor.Presets.Preset preset = Resources.Load<UnityEditor.Presets.Preset>("Materials/PBS_Metallic");
-		preset.ApplyTo(material);
-	}
+		public override void OnDestroy()
+		{
+		}
 
-	public override void OnAwake()
-	{
-	}
+		public override void OnUpdate()
+		{
 
-	public override void OnDestroy()
-	{
-	}
+		}
 
-	public override void OnUpdate()
-	{
-
-	}
-
-	public void OnChanged()
-	{
-		material.color = albedo;
-		material.mainTexture = texture.texture;
+		public override void OnChange()
+		{
+			material.color = albedo;
+			material.mainTexture = texture.texture;
+		}
 	}
 }

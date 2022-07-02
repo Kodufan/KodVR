@@ -1,33 +1,44 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using KodEngine;
 
-public class ProceduralBoxMesh : Component
+namespace KodEngine.Component
 {
-	public Mesh box { get; set; }
-
-	public override void OnAsleep()
+	public class ProceduralBoxMesh : Core.Mesh
 	{
-	}
+		public override void OnAsleep()
+		{
+		}
 
-	public override void OnAttach()
-	{
-		owner.owningWorld.OnFocusGained += OnAwake;
-		owner.owningWorld.OnFocusLost += OnAsleep;
-		KodEngine.OnCommonUpdate += OnUpdate;
-		MeshFilter mesh = owner.gameObject.AddComponent<MeshFilter>();
-		mesh.mesh = Resources.GetBuiltinResource<Mesh>("Cube.fbx");
-	}
+		public override void OnAttach()
+		{
+			base.OnAttach();
+			owner.owningWorld.OnFocusGained += OnAwake;
+			owner.owningWorld.OnFocusLost += OnAsleep;
+			Engine.OnCommonUpdate += OnUpdate;
 
-	public override void OnAwake()
-	{
-	}
+			meshObject.transform.SetParent(owner.gameObject.transform);
 
-	public override void OnDestroy()
-	{
-	}
+			meshFilter.mesh = Resources.GetBuiltinResource<UnityEngine.Mesh>("Cube.fbx");
+		}
 
-	public override void OnUpdate()
-	{
+		public override void OnAwake()
+		{
+		}
+
+		public override void OnDestroy()
+		{
+		}
+
+		public override void OnUpdate()
+		{
+		}
+
+		public override void OnChange()
+		{
+
+		}
 	}
 }
+

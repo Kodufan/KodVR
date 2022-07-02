@@ -4,12 +4,8 @@ using UnityEngine;
 
 namespace KodEngine.Core
 {
-	public enum WorldType
+	public interface IWorldObject
 	{
-		Default,
-		Space,
-		Gridspace,
-		Debug,
-		Custom
+
 	}
 }

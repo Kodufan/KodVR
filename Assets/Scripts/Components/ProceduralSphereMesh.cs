@@ -5,9 +5,9 @@ using KodEngine;
 
 namespace KodEngine.Component
 {
-	public class BuiltInMaterial : Core.Component
+	public class ProceduralSphereMesh : Core.Mesh
 	{
-		public Material material { get; set; }
+		public Mesh sphere { get; set; }
 
 		public override void OnAsleep()
 		{
@@ -15,10 +15,15 @@ namespace KodEngine.Component
 
 		public override void OnAttach()
 		{
+			base.OnAttach();
 			owner.owningWorld.OnFocusGained += OnAwake;
 			owner.owningWorld.OnFocusLost += OnAsleep;
 			Engine.OnCommonUpdate += OnUpdate;
-			material = Resources.Load<Material>("Materials/BuiltInMaterial");
+
+			meshObject.transform.SetParent(owner.gameObject.transform);
+
+			Debug.Log(meshFilter);
+			meshFilter.mesh = Resources.GetBuiltinResource<UnityEngine.Mesh>("Sphere.fbx");
 		}
 
 		public override void OnAwake()
@@ -35,6 +40,7 @@ namespace KodEngine.Component
 
 		public override void OnChange()
 		{
+
 		}
 	}
 }
