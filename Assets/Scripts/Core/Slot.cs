@@ -19,6 +19,7 @@ public class Slot : IComparable
 	public GameObject gameObject;
 
 	// Fix constructors so that slots can be created anywhere in a heirarchy and also any session
+	// Also force slots to be placed in sessions
 	public Slot(World owningWorld) : this("", "", Vector3.zero, Quaternion.identity, Vector3.one, null, owningWorld, true)
 	{
 	}
@@ -133,8 +134,8 @@ public class Slot : IComparable
 	public void AttachPlane(Color albedo)
 	{
 		GameObject plane = GameObject.CreatePrimitive(PrimitiveType.Plane);
-		Material material = new Material(Shader.Find("Standard"));
-		MeshRenderer renderer = plane.GetComponent<MeshRenderer>();
+		Material material = Resources.Load<Material>("Materials/Standard");
+		UnityEngine.MeshRenderer renderer = plane.GetComponent<UnityEngine.MeshRenderer>();
 		plane.transform.position = this.position;
 		plane.transform.rotation = this.rotation;
 		plane.transform.localScale = this.scale;
@@ -143,12 +144,13 @@ public class Slot : IComparable
 		renderer.material = material;
 	}
 	
-	public void AttachComponent<T>() where T : Component, new()
+	public T AttachComponent<T>() where T : Component, new()
 	{
 		// This is gross. Component should take a slot as a constructor and then call OnAttach when completed.
 		T component = new T();
 		component.owner = this;
 		component.OnAttach();
+		return component;
 	}
 
 	

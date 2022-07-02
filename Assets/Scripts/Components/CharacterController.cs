@@ -218,6 +218,7 @@ public class CharacterController : Component
 	{
 		// Create player visual and collider
 		_controllerObject = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+		_controllerObject.name = "Character controller";
 
 		// Parent player object to the slot
 		_controllerObject.transform.SetParent(owner.gameObject.transform);

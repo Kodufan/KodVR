@@ -33,14 +33,22 @@ public class World
 		switch (type)
 		{
 			case WorldType.Default:
-				Slot slot = CreateSlot("I am a slot in the default world!");
-				Slot subSlot = CreateSlot("I am a child of the slot above!");
-				Slot subSubSlot = CreateSlot("C");
-				subSlot.SetParent(slot);
-				slot.SetParent(root);
-				subSubSlot.SetParent(subSlot);
-				Slot subCousinSlot = CreateSlot("D");
-				subCousinSlot.SetParent(subSlot);
+				Slot cube = new Slot("Cube", this);
+				cube.SetParent(root);
+				Texture2D tex = cube.AttachComponent<Texture2D>();
+				PBS_Metallic material = cube.AttachComponent<PBS_Metallic>();
+				ProceduralBoxMesh mesh = cube.AttachComponent<ProceduralBoxMesh>();
+				MeshRenderer renderer = cube.AttachComponent<MeshRenderer>();
+
+				tex.uri = new System.Uri("C:\\Users\\koduf\\Desktop\\Memes\\718c6523d13d52ea0d5decf15988d119d2d24305a72b1e680f5acb24e943295d_1.png");
+				material.texture = tex;
+				Slot cube2 = new Slot("Cube2", this);
+				cube2.gameObject.transform.position = new Vector3(0, 1, 0);
+				cube2.AttachComponent<ProceduralBoxMesh>();
+				MeshRenderer render2 = cube2.AttachComponent<MeshRenderer>();
+				render2.material = material;
+
+				//renderer.material = material;
 				root.AttachPlane(Color.grey);
 				break;
 			case WorldType.Space:
