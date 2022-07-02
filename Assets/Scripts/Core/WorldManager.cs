@@ -68,14 +68,12 @@ public class WorldManager
 
 	public void ToggleSession()
 	{
-		//Debug.Log(focusedWorldIndex);
 		if (focusedWorldIndex == -1)
 		{
 			Debug.LogError("No world focused!");
 			return;
 		}
 
-		Debug.Log(focusedWorldIndex);
 		if (focusedWorldIndex + 1 <= worlds.Count - 1)
 		{
 			FocusWorld(focusedWorldIndex + 1);

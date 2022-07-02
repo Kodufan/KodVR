@@ -14,6 +14,7 @@ public class Slot : IComparable
 	public World owningWorld;
 	public Slot parent;
 	public List<Slot> children;
+	public List<Component> components;
 	public bool isActive;
 	public GameObject gameObject;
 
@@ -37,6 +38,7 @@ public class Slot : IComparable
 		this.owningWorld = owningWorld;
 		this.parent = parent;
 		this.children = new List<Slot>();
+		this.components = new List<Component>();
 		this.isActive = true;
 		this.gameObject = new GameObject(name);
 	}
@@ -140,11 +142,14 @@ public class Slot : IComparable
 		material.color = albedo;
 		renderer.material = material;
 	}
-
-	public void AttachCharacterController()
+	
+	public void AttachComponent<T>() where T : Component, new()
 	{
-		GameObject controller = new GameObject("Character controller");
-		controller.AddComponent<CharacterController>();
-		controller.transform.SetParent(gameObject.transform);
+		// This is gross. Component should take a slot as a constructor and then call OnAttach when completed.
+		T component = new T();
+		component.owner = this;
+		component.OnAttach();
 	}
+
+	
 }

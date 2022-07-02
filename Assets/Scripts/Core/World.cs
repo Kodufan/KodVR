@@ -2,11 +2,15 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+public delegate void Focus();
+
 public class World
 {
 	public Slot root;
-	
-    public void Close()
+	public event Focus OnFocusGained;
+	public event Focus OnFocusLost;
+
+	public void Close()
 	{
 		
 	}
@@ -52,17 +56,19 @@ public class World
 				root.AttachPlane(Color.red);
 				break;
 		}
-		root.AttachCharacterController();
+		root.AttachComponent<CharacterController>();
 	}
 
 	public void Focus()
 	{
 		root.gameObject.SetActive(true);
+		OnFocusGained?.Invoke();
 	}
 
 	public void Unfocus()
 	{
 		root.gameObject.SetActive(false);
+		OnFocusLost?.Invoke();
 	}
 
 	public Slot CreateSlot(string name)

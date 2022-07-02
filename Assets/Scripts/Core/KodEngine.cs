@@ -2,10 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+public delegate void Update();
+
 public class KodEngine : MonoBehaviour
 {
 	private UnityInputHandler _unityInputActions;
 	private InputHandler _inputHandler;
+
+	public static event Update OnCommonUpdate;
 
 	void Awake()
 	{
@@ -40,26 +44,6 @@ public class KodEngine : MonoBehaviour
 
 	public void EngineUpdate()
 	{
-		//if (Input.GetKeyDown(KeyCode.Alpha1))
-		//{
-		//	Debug.Log("Focusing world 1...");
-		//	WorldManager.FocusWorld(0);
-		//}
-		//else if (Input.GetKeyDown(KeyCode.Alpha2))
-		//{
-		//	Debug.Log("Focusing on world 2...");
-		//	WorldManager.FocusWorld(1);
-		//}
-		//else if (Input.GetKeyDown(KeyCode.Delete))
-		//{
-		//	Debug.Log("Deleting slots in world 1...");
-		//	WorldManager.FocusWorld(0);
-		//	WorldManager.focusedWorld.root.GetChild(0).destroy();
-		//} else if (Input.GetKeyDown(KeyCode.C))
-		//{
-		//	Debug.Log("Creating new slot in world 1...");
-		//	WorldManager.FocusWorld(0);
-		//	WorldManager.focusedWorld.root.GetChild(0).CreateChild(WorldManager.focusedWorld.root);
-		//}
+		OnCommonUpdate?.Invoke();
 	}
 }
