@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System;
 using KodEngine.Core;
 using KodEngine.Component;
+using KodEngine.KodEBase;
 
 namespace KodEngine.Core
 {
@@ -11,9 +12,49 @@ namespace KodEngine.Core
 		public string name;
 		public string tag;
 		private int orderOffset;
-		public UnityEngine.Vector3 position;
-		public UnityEngine.Quaternion rotation;
-		public UnityEngine.Vector3 scale;
+
+		private Float3 _position;
+		public Float3 position
+		{
+			get
+			{
+				return _position;
+			}
+			set
+			{
+				_position = value;
+				this.gameObject.transform.localPosition = value.unityVector3;
+			}
+		}
+
+		private FloatQ _rotation;
+		public FloatQ rotation
+		{
+			get
+			{
+				return _rotation;
+			}
+			set
+			{
+				_rotation = value;
+				this.gameObject.transform.localRotation = value.unityQuaternion;
+			}
+		}
+
+		private Float3 _scale;
+		public Float3 scale
+		{
+			get
+			{
+				return _scale;
+			}
+			set
+			{
+				_scale = value;
+				this.gameObject.transform.localScale = value.unityVector3;
+			}
+		}
+		
 		public World owningWorld;
 		public Slot parent;
 		public List<Slot> children;
@@ -23,16 +64,19 @@ namespace KodEngine.Core
 
 		// Fix constructors so that slots can be created anywhere in a heirarchy and also any session
 		// Also force slots to be placed in sessions
-		public Slot(World owningWorld) : this("", "", UnityEngine.Vector3.zero, UnityEngine.Quaternion.identity, UnityEngine.Vector3.one, null, owningWorld, true)
+		public Slot(World owningWorld) : this("", "", Float3.zero, FloatQ.identity, Float3.one, null, owningWorld, true)
 		{
 		}
 
-		public Slot(string name, World owningWorld) : this(name, "", UnityEngine.Vector3.zero, UnityEngine.Quaternion.identity, UnityEngine.Vector3.one, null, owningWorld, true)
+		public Slot(string name, World owningWorld) : this(name, "", Float3.zero, FloatQ.identity, Float3.one, null, owningWorld, true)
 		{
 		}
 
-		public Slot(string name, string tag, UnityEngine.Vector3 position, UnityEngine.Quaternion rotation, UnityEngine.Vector3 scale, Slot parent, World owningWorld, bool isActive)
+		public Slot(string name, string tag, Float3 position, FloatQ rotation, Float3 scale, Slot parent, World owningWorld, bool isActive)
 		{
+			// Must be created first for pos/rot/scale
+			this.gameObject = new UnityEngine.GameObject(name);
+
 			this.name = name;
 			this.tag = tag;
 			this.orderOffset = 0;
@@ -44,8 +88,7 @@ namespace KodEngine.Core
 			this.children = new List<Slot>();
 			this.components = new List<Component>();
 			this.isActive = true;
-			this.gameObject = new UnityEngine.GameObject(name);
-
+			
 			if (this.parent != null)
 			{
 				this.gameObject.transform.SetParent(this.parent.gameObject.transform);
@@ -98,7 +141,7 @@ namespace KodEngine.Core
 
 		public Slot CreateChild()
 		{
-			Slot newSlot =  new Slot(this.name + " - Child", "", UnityEngine.Vector3.zero, UnityEngine.Quaternion.identity, UnityEngine.Vector3.zero, this, this.owningWorld, true);
+			Slot newSlot =  new Slot(this.name + " - Child", "", Float3.zero, FloatQ.identity, Float3.zero, this, this.owningWorld, true);
 			return newSlot;
 		}
 
@@ -144,11 +187,11 @@ namespace KodEngine.Core
 		{
 			Slot cube3 = new Slot("Cube3", owningWorld);
 			cube3.SetParent(owningWorld.root);
-
-			cube3.gameObject.transform.localPosition = new UnityEngine.Vector3(0, -1, 0);
+			
+			cube3.position = new Float3(0, -1, 0);
 
 			// When a cube is scaled to 0, the renderer will fail and it will turn black
-			cube3.gameObject.transform.localScale = new UnityEngine.Vector3(10, 0.00001f, 10);
+			cube3.scale = new Float3(10, 0.00001f, 10);
 
 			Texture2D tex3 = cube3.AttachComponent<Texture2D>();
 			tex3.uri = new System.Uri("C:\\Users\\koduf\\Desktop\\Memes\\718c6523d13d52ea0d5decf15988d119d2d24305a72b1e680f5acb24e943295d_1.png");
@@ -164,7 +207,7 @@ namespace KodEngine.Core
 
 			renderer3.mesh = boxMesh3;
 
-			material3.albedo = new KodEBase.Color(albedo);
+			material3.albedo = new Color(albedo);
 
 			MeshCollider collider3 = cube3.AttachComponent<MeshCollider>();
 			collider3.mesh = boxMesh3;
