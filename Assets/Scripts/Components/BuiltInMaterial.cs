@@ -7,7 +7,13 @@ namespace KodEngine.Component
 {
 	public class BuiltInMaterial : Core.Component
 	{
-		public Material material { get; set; }
+		public Material material
+		{
+			get
+			{
+				return Engine.builtInMaterial.material;
+			}
+		}
 
 		public override void OnAsleep()
 		{
@@ -18,7 +24,6 @@ namespace KodEngine.Component
 			owner.owningWorld.OnFocusGained += OnAwake;
 			owner.owningWorld.OnFocusLost += OnAsleep;
 			Engine.OnCommonUpdate += OnUpdate;
-			material = Resources.Load<Material>("Materials/BuiltInMaterial");
 		}
 
 		public override void OnAwake()
