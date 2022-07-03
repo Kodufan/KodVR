@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 //using UnityEngine;
 using KodEngine.Component;
+using KodEngine.KodEBase;
 
 namespace KodEngine.Component
 {
@@ -22,8 +23,9 @@ namespace KodEngine.Component
 				OnChange();
 			}
 		}
-		private UnityEngine.Color _albedo = UnityEngine.Color.white;
-		public UnityEngine.Color albedo
+
+		private Color _albedo = new Color(1, 1, 1, 1);
+		public Color albedo
 		{
 			get
 			{
@@ -66,8 +68,13 @@ namespace KodEngine.Component
 
 		public override void OnChange()
 		{
-			material.color = albedo;
-			material.mainTexture = texture.texture;
+			//UnityEngine.Debug.Log(albedo.unityColor);
+			material.color = albedo.unityColor;
+
+			if (texture != null)
+			{
+				material.mainTexture = texture.texture;
+			}
 		}
 	}
 }

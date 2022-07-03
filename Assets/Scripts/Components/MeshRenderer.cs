@@ -66,15 +66,11 @@ namespace KodEngine.Component
 
 		public override void OnUpdate()
 		{
-
-
 			if (renderer != null && material != null)
 			{
 				renderer.material = material.material;
 				//Debug.Log(material.material);
 			}
-
-
 		}
 
 		public override void OnChange()

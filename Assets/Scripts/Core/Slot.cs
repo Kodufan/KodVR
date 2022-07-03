@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 using KodEngine.Core;
+using KodEngine.Component;
 
 namespace KodEngine.Core
 {
@@ -44,11 +45,16 @@ namespace KodEngine.Core
 			this.components = new List<Component>();
 			this.isActive = true;
 			this.gameObject = new UnityEngine.GameObject(name);
+
+			if (this.parent != null)
+			{
+				this.gameObject.transform.SetParent(this.parent.gameObject.transform);
+			}
 		}
 
 		public void SetParent(Slot parent)
 		{
-			if (parent != null && this.owningWorld == parent.owningWorld)
+			if (parent != null && this.owningWorld == parent.owningWorld && this.parent != parent)
 			{
 				if (this.parent != null)
 				{
@@ -87,12 +93,13 @@ namespace KodEngine.Core
 			slot.parent = null;
 			UnityEngine.Object.Destroy(slot.gameObject);
 			UnityEngine.Debug.Log("Destroying slot: " + slot);
-
+			
 		}
 
-		public Slot CreateChild(Slot slot)
+		public Slot CreateChild()
 		{
-			return new Slot(slot.name + " - Child", "", UnityEngine.Vector3.zero, UnityEngine.Quaternion.identity, UnityEngine.Vector3.zero, slot, this.owningWorld, true); ;
+			Slot newSlot =  new Slot(this.name + " - Child", "", UnityEngine.Vector3.zero, UnityEngine.Quaternion.identity, UnityEngine.Vector3.zero, this, this.owningWorld, true);
+			return newSlot;
 		}
 
 		public Slot GetChild(int index)
@@ -135,18 +142,32 @@ namespace KodEngine.Core
 
 		public void AttachPlane(UnityEngine.Color albedo)
 		{
-			UnityEngine.GameObject plane = UnityEngine.GameObject.CreatePrimitive(UnityEngine.PrimitiveType.Plane);
-			UnityEngine.Material material = new UnityEngine.Material(UnityEngine.Shader.Find("Specular"));
-			UnityEditor.Presets.Preset preset = new UnityEditor.Presets.Preset(UnityEngine.Resources.Load<UnityEditor.Presets.Preset>("Materials/PBS_Metallic"));
-			preset.ApplyTo(material);
+			Slot cube3 = new Slot("Cube3", owningWorld);
+			cube3.SetParent(owningWorld.root);
 
-			UnityEngine.MeshRenderer renderer = plane.GetComponent<UnityEngine.MeshRenderer>();
-			plane.transform.position = this.position;
-			plane.transform.rotation = this.rotation;
-			plane.transform.localScale = this.scale;
-			plane.transform.SetParent(this.gameObject.transform);
-			material.color = albedo;
-			renderer.material = material;
+			cube3.gameObject.transform.localPosition = new UnityEngine.Vector3(0, -1, 0);
+
+			// When a cube is scaled to 0, the renderer will fail and it will turn black
+			cube3.gameObject.transform.localScale = new UnityEngine.Vector3(10, 0.00001f, 10);
+
+			Texture2D tex3 = cube3.AttachComponent<Texture2D>();
+			tex3.uri = new System.Uri("C:\\Users\\koduf\\Desktop\\Memes\\718c6523d13d52ea0d5decf15988d119d2d24305a72b1e680f5acb24e943295d_1.png");
+
+			PBS_Metallic material3 = cube3.AttachComponent<PBS_Metallic>();
+			//material3.texture = tex3;
+
+			ProceduralSphereMesh sphereMesh3 = cube3.AttachComponent<ProceduralSphereMesh>();
+			ProceduralBoxMesh boxMesh3 = cube3.AttachComponent<ProceduralBoxMesh>();
+			MeshRenderer renderer3 = cube3.AttachComponent<MeshRenderer>();
+			renderer3.material = material3;
+			renderer3.mesh = sphereMesh3;
+
+			renderer3.mesh = boxMesh3;
+
+			material3.albedo = new KodEBase.Color(albedo);
+
+			MeshCollider collider3 = cube3.AttachComponent<MeshCollider>();
+			collider3.mesh = boxMesh3;
 		}
 
 		public T AttachComponent<T>() where T : Component, new()

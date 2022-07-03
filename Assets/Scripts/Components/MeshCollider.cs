@@ -1,13 +1,28 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using KodEngine;
+//using UnityEngine;
+using KodEngine.Core;
+using KodEngine.Component;
 
 namespace KodEngine.Component
 {
-	public class ProceduralSphereMesh : Core.Mesh
+	public class MeshCollider : Core.Component
 	{
-		public Mesh sphere { get; set; }
+		private Mesh _mesh;
+		public Mesh mesh
+		{
+			get
+			{
+				return _mesh;
+			}
+			set
+			{
+				_mesh = value;
+				OnChange();
+			}
+		}
+
+		UnityEngine.MeshCollider collider;
 
 		public override void OnAsleep()
 		{
@@ -15,14 +30,10 @@ namespace KodEngine.Component
 
 		public override void OnAttach()
 		{
-			base.OnAttach();
 			owner.owningWorld.OnFocusGained += OnAwake;
 			owner.owningWorld.OnFocusLost += OnAsleep;
 			Engine.OnCommonUpdate += OnUpdate;
-
-			meshObject.transform.SetParent(owner.gameObject.transform);
-
-			meshFilter.mesh = Resources.GetBuiltinResource<UnityEngine.Mesh>("Sphere.fbx");
+			collider = owner.gameObject.AddComponent<UnityEngine.MeshCollider>();
 		}
 
 		public override void OnAwake()
@@ -39,7 +50,10 @@ namespace KodEngine.Component
 
 		public override void OnChange()
 		{
-
+			if (mesh != null)
+			{
+				collider.sharedMesh = mesh.meshFilter.mesh;
+			}
 		}
 	}
 }
