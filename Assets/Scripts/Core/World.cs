@@ -44,7 +44,7 @@ namespace KodEngine.Core
 					cube.position = new Float3(1, 0, -.75f);
 
 					Texture2D tex = cube.AttachComponent<Texture2D>();
-					tex.uri = new System.Uri("C:\\Program Files (x86)\\Steam\\userdata\\207376680\\760\\remote\\740250\\screenshots\\20220630194923_1.jpg");
+					tex.uri = new System.Uri("C:\\Users\\Jack Duvall\\Downloads\\image.jpg");
 
 					PBS_Metallic material = cube.AttachComponent<PBS_Metallic>();
 					material.texture = tex;

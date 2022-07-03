@@ -202,7 +202,7 @@ namespace KodEngine.Core
 			ProceduralSphereMesh sphereMesh3 = cube3.AttachComponent<ProceduralSphereMesh>();
 			ProceduralBoxMesh boxMesh3 = cube3.AttachComponent<ProceduralBoxMesh>();
 			MeshRenderer renderer3 = cube3.AttachComponent<MeshRenderer>();
-			//renderer3.material = material3;
+			renderer3.material = material3;
 			renderer3.mesh = sphereMesh3;
 
 			renderer3.mesh = boxMesh3;

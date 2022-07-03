@@ -48,9 +48,10 @@ namespace KodEngine.Component
 			owner.owningWorld.OnFocusGained += OnAwake;
 			owner.owningWorld.OnFocusLost += OnAsleep;
 			Engine.OnCommonUpdate += OnUpdate;
-			material = new UnityEngine.Material(UnityEngine.Shader.Find("Specular"));
-			UnityEditor.Presets.Preset preset = UnityEngine.Resources.Load<UnityEditor.Presets.Preset>("Materials/PBS_Metallic");
-			preset.ApplyTo(material);
+			UnityEngine.Shader shader = UnityEngine.Resources.Load<UnityEngine.Shader>("Shaders/Root_Folder/Standard");
+			material = new UnityEngine.Material(shader);
+			//UnityEditor.Presets.Preset preset = UnityEngine.Resources.Load<UnityEditor.Presets.Preset>("Materials/PBS_Metallic");
+			//preset.ApplyTo(material);
 		}
 
 		public override void OnAwake()
