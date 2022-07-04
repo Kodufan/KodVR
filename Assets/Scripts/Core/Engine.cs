@@ -11,12 +11,14 @@ namespace KodEngine
 	{
 		private UnityInputHandler _unityInputActions;
 		public static InputHandler _inputHandler;
+		public static Core.BuiltInMaterial builtInMaterial;
 
 		public static event Update OnCommonUpdate;
 
 		void Awake()
 		{
 			_unityInputActions = new UnityInputHandler();
+			builtInMaterial = new Core.BuiltInMaterial();
 		}
 
 		// Start is called before the first frame update
@@ -26,7 +28,9 @@ namespace KodEngine
 			WorldManager worldManager = new WorldManager(gameObject);
 
 			//CharacterController characterController = new CharacterController(_inputHandler);
+			
 
+			
 			worldManager.LoadDefaultWorld();
 			worldManager.LoadWorld(WorldType.Gridspace);
 			worldManager.LoadWorld(WorldType.Debug);

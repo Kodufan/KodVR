@@ -3,6 +3,7 @@ using System.Collections.Generic;
 //using UnityEngine;
 using KodEngine.Component;
 using KodEngine.Core;
+using KodEngine.KodEBase;
 
 namespace KodEngine.Core
 {
@@ -26,7 +27,7 @@ namespace KodEngine.Core
 		// Constructor
 		public World(WorldType type)
 		{
-			// Create the root object
+			// Create the world root
 			root = CreateSlot("Root");
 
 			UnityEngine.GameObject gameObject = new UnityEngine.GameObject(type.ToString());
@@ -40,10 +41,10 @@ namespace KodEngine.Core
 					Slot cube = new Slot("Cube", this);
 					cube.SetParent(root);
 
-					cube.gameObject.transform.localPosition = new UnityEngine.Vector3(1, 0, -.75f);
+					cube.position = new Float3(1, 0, -.75f);
 
 					Texture2D tex = cube.AttachComponent<Texture2D>();
-					tex.uri = new System.Uri("C:\\Program Files (x86)\\Steam\\userdata\\207376680\\760\\remote\\740250\\screenshots\\20220630194923_1.jpg");
+					tex.uri = new System.Uri("C:\\Users\\Jack Duvall\\Downloads\\image.jpg");
 
 					PBS_Metallic material = cube.AttachComponent<PBS_Metallic>();
 					material.texture = tex;
@@ -56,7 +57,7 @@ namespace KodEngine.Core
 
 					renderer.mesh = boxMesh;
 
-					material.albedo = new KodEBase.Color(1, 1, 1, 1);
+					material.albedo = new Color(1, 1, 1, 1);
 
 					MeshCollider collider = cube.AttachComponent<MeshCollider>();
 					collider.mesh = boxMesh;
@@ -66,7 +67,7 @@ namespace KodEngine.Core
 					Slot cube2 = new Slot("Cube2", this);
 					cube2.SetParent(root);
 
-					cube2.gameObject.transform.localPosition = new UnityEngine.Vector3(1, 0, .75f);
+					cube2.position = new Float3(1, 0, .75f);
 
 					Texture2D tex2 = cube2.AttachComponent<Texture2D>();
 					tex2.uri = new System.Uri("C:\\Users\\koduf\\Desktop\\Memes\\718c6523d13d52ea0d5decf15988d119d2d24305a72b1e680f5acb24e943295d_1.png");
@@ -82,7 +83,7 @@ namespace KodEngine.Core
 
 					renderer2.mesh = boxMesh2;
 
-					material2.albedo = new KodEBase.Color(1, 1, 1, 1);
+					material2.albedo = new Color(1, 1, 1, 1);
 
 					MeshCollider collider2 = cube2.AttachComponent<MeshCollider>();
 					collider2.mesh = boxMesh2;

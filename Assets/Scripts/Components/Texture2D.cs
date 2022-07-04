@@ -9,6 +9,8 @@ namespace KodEngine.Component
 	{
 		private System.Uri _uri;
 
+		public BuiltInMaterial builtInMaterial;
+
 		public System.Uri uri
 		{
 			get
@@ -60,10 +62,19 @@ namespace KodEngine.Component
 		{
 			UnityEngine.Texture2D texture;
 			path = path.Substring(8);
-			byte[] bytes = System.IO.File.ReadAllBytes(path);
-			texture = new UnityEngine.Texture2D(2, 2);
-			texture.LoadImage(bytes);
-			return texture;
+			byte[] bytes;
+			try
+			{
+				bytes = System.IO.File.ReadAllBytes(path);
+				texture = new UnityEngine.Texture2D(2, 2);
+				texture.LoadImage(bytes);
+				return texture;
+
+			} catch (System.Exception e)
+			{
+				UnityEngine.Debug.Log(e.StackTrace.ToString());
+				return (UnityEngine.Texture2D) Engine.builtInMaterial.material.mainTexture;
+			}
 		}
 	}
 }
