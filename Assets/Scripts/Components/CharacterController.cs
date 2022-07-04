@@ -67,6 +67,18 @@ namespace KodEngine.Component
 
 		private const float _threshold = 0.01f;
 
+		public override string helpText
+		{
+			get
+			{
+				return "The CharacterController component currently serves multiple purposes: providing a viewpoint, moving the player, and handling collisions. " +
+					"This functionality will later be seperated into their own components, but for testing purposes, it is currently all in one component.";
+			}
+			set
+			{
+			}
+		}
+
 		private void GroundedCheck()
 		{
 			// set sphere position, with offset

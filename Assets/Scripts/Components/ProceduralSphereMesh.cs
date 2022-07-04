@@ -9,6 +9,17 @@ namespace KodEngine.Component
 	{
 		public Mesh sphere { get; set; }
 
+		public override string helpText
+		{
+			get
+			{
+				return "The ProceduralSphereMesh component will provide a dynamic sphere mesh based on its properties which can be used either for rendering or colliders.";
+			}
+			set
+			{
+			}
+		}
+
 		public override void OnAsleep()
 		{
 		}

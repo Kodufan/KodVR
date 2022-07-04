@@ -15,6 +15,18 @@ namespace KodEngine.Component
 			}
 		}
 
+		public override string helpText
+		{
+			get
+			{
+				return "This material will always display an unlit checkerboard. This is the component version of the fallback material used when a renderer contains" +
+					" no materials, or textures have not loaded.";
+			}
+			set
+			{
+			}
+		}
+
 		public override void OnAsleep()
 		{
 		}

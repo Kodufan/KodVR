@@ -7,6 +7,17 @@ namespace KodEngine.Component
 {
 	public class ProceduralBoxMesh : Core.Mesh
 	{
+		public override string helpText
+		{
+			get
+			{
+				return "The ProceduralBoxMesh component will provide a dynamic cube mesh based on its properties which can be used either for rendering or colliders.";
+			}
+			set
+			{
+			}
+		}
+
 		public override void OnAsleep()
 		{
 		}

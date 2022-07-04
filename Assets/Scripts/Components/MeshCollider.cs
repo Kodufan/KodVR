@@ -24,6 +24,18 @@ namespace KodEngine.Component
 
 		UnityEngine.MeshCollider collider;
 
+		public override string helpText
+		{
+			get
+			{
+				return "The MeshCollider component will create a collider centered on the attached slot with a mesh provided to it. This collider can be used for a multitude" +
+					" of different functions, such as physics, interactable objects, raycast targets, or to detect intersection with other colliders.";
+			}
+			set
+			{
+			}
+		}
+
 		public override void OnAsleep()
 		{
 		}

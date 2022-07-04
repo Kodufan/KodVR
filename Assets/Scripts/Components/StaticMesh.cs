@@ -9,6 +9,17 @@ namespace KodEngine.Component
 	{
 		public System.Uri uri { get; set; }
 
+		public override string helpText
+		{
+			get
+			{
+				return "The StaticMesh component loads a mesh either locally or from the cloud with a link, which can be used either for rendering or colliders.";
+			}
+			set
+			{
+			}
+		}
+
 		public override void OnAsleep()
 		{
 		}

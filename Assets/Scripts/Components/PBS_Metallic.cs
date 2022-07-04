@@ -38,6 +38,17 @@ namespace KodEngine.Component
 			}
 		}
 
+		public override string helpText
+		{
+			get
+			{
+				return "The PBS_Metallic material is a material used for creating reflective, metallic appearing objects.";
+			}
+			set
+			{
+			}
+		}
+
 
 		public override void OnAsleep()
 		{

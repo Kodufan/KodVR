@@ -39,6 +39,18 @@ namespace KodEngine.Component
 		private UnityEngine.MeshRenderer renderer;
 		private UnityEngine.MeshFilter meshFilter;
 
+		public override string helpText
+		{
+			get
+			{
+				return "The MeshRenderer component will take in a mesh and a list of materials, rendering the mesh with said materials on the slot it has been attached to." +
+					" This does not automatically assign colliders to the object. If you want your object to be anything besides a visual, please consider attaching colliders as well.";
+			}
+			set
+			{
+			}
+		}
+
 		public override void OnAsleep()
 		{
 		}

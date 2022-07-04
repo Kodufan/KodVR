@@ -24,6 +24,18 @@ namespace KodEngine.Component
 			}
 		}
 
+		public override string helpText
+		{
+			get
+			{
+				return "The Texture2D component loads a texture either locally or from the cloud with a link, which can be used on materials. To view an image, please " +
+					"create a plane and appropriate material, assigning both to a MeshRenderer";
+			}
+			set
+			{
+			}
+		}
+
 		// Incorperate OnChanged functionality into setter
 
 		public UnityEngine.Texture2D texture { get; set; }
