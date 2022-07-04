@@ -44,18 +44,17 @@ namespace KodEngine.Core
 					cube.position = new Float3(1, 0, -.75f);
 
 					Texture2D tex = cube.AttachComponent<Texture2D>();
-					tex.uri = new System.Uri("C:\\Users\\Jack Duvall\\Downloads\\image.jpg");
+					tex.uri = new System.Uri("C:\\Users\\Jack Duvall\\Downloads\\hug.png");
 
 					PBS_Metallic material = cube.AttachComponent<PBS_Metallic>();
 					material.texture = tex;
 
-					ProceduralSphereMesh sphereMesh = cube.AttachComponent<ProceduralSphereMesh>();
 					ProceduralBoxMesh boxMesh = cube.AttachComponent<ProceduralBoxMesh>();
+					ProceduralSphereMesh sphereMesh = cube.AttachComponent<ProceduralSphereMesh>();
 					MeshRenderer renderer = cube.AttachComponent<MeshRenderer>();
 					renderer.material = material;
-					renderer.mesh = sphereMesh;
 
-					renderer.mesh = boxMesh;
+					renderer.mesh = sphereMesh;
 
 					material.albedo = new Color(1, 1, 1, 1);
 
@@ -70,16 +69,14 @@ namespace KodEngine.Core
 					cube2.position = new Float3(1, 0, .75f);
 
 					Texture2D tex2 = cube2.AttachComponent<Texture2D>();
-					tex2.uri = new System.Uri("C:\\Users\\koduf\\Desktop\\Memes\\718c6523d13d52ea0d5decf15988d119d2d24305a72b1e680f5acb24e943295d_1.png");
+					tex2.uri = new System.Uri("C:\\Users\\Jack Duvall\\Downloads\\drag.png");
 
 					PBS_Metallic material2 = cube2.AttachComponent<PBS_Metallic>();
 					material2.texture = tex2;
 
-					ProceduralSphereMesh sphereMesh2 = cube2.AttachComponent<ProceduralSphereMesh>();
 					ProceduralBoxMesh boxMesh2 = cube2.AttachComponent<ProceduralBoxMesh>();
 					MeshRenderer renderer2 = cube2.AttachComponent<MeshRenderer>();
 					renderer2.material = material2;
-					renderer2.mesh = sphereMesh2;
 
 					renderer2.mesh = boxMesh2;
 

@@ -5,6 +5,16 @@ using UnityEngine;
 
 namespace KodEngine.KodEBase
 {
+	public class SyncValue<T>
+	{
+		public T value;
+		public RefID refID;
+	}
+
+	public class RefID
+	{
+		
+	}
 	public class Color
 	{
 		public float r;
