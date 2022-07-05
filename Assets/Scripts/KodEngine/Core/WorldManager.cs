@@ -12,6 +12,7 @@ namespace KodEngine.Core
 		public static int focusedWorldIndex;
 		public static GameObject worldRoot;
 		InputHandler _input = new InputHandler(new UnityInputHandler());
+		public static int worldID;
 
 		public WorldManager(GameObject gameObject)
 		{
@@ -26,12 +27,31 @@ namespace KodEngine.Core
 			return LoadWorld(WorldType.Default);
 		}
 
+		public static World GetWorldFromID(string id)
+		{
+			foreach (World world in worlds)
+			{
+				if (world.worldID == id)
+				{
+					return world;
+				}
+			}
+			return null;
+		}
+
 		public World LoadWorld(WorldType worldType)
 		{
-			World world = new World(worldType);
+			World world = new World(worldType, worldID.ToString());
+			worldID++;
 			worlds.Add(world);
+			//world.AddUser("Username", "UserID", "MachineID");
 			FocusWorld(world);
 			return world;
+		}
+
+		public void ConnectToWorld()
+		{
+			
 		}
 
 		public static void FocusWorld(int index)

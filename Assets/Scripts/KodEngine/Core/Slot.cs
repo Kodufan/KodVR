@@ -141,7 +141,7 @@ namespace KodEngine.Core
 
 		public Slot CreateChild()
 		{
-			Slot newSlot =  new Slot(this.name + " - Child", "", Float3.zero, FloatQ.identity, Float3.zero, this, this.owningWorld, true);
+			Slot newSlot =  new Slot(this.name + " - Child", "", Float3.zero, FloatQ.identity, Float3.one, this, this.owningWorld, true);
 			return newSlot;
 		}
 
@@ -182,10 +182,36 @@ namespace KodEngine.Core
 		{
 			return name;
 		}
+		
+		public User TryGetUser()
+		{
+			foreach (User user in owningWorld.users)
+			{
+				if (TryGetParentSlot(user.userRoot) != null)
+				{
+					return user;
+				}
+			}
+			return null;
+		}
+
+		public Slot TryGetParentSlot(Slot target)
+		{
+			Slot tempSlot = this;
+			while (tempSlot.parent != null)
+			{
+				if (tempSlot.parent == target)
+				{
+					return tempSlot;
+				}
+				tempSlot = tempSlot.parent;
+			}
+			return null;
+		}
 
 		public void AttachPlane(UnityEngine.Color albedo)
 		{
-			Slot cube3 = new Slot("Cube3", owningWorld);
+			Slot cube3 = new Slot("Floor", owningWorld);
 			cube3.SetParent(owningWorld.root);
 			
 			cube3.position = new Float3(0, -1, 0);
@@ -211,6 +237,20 @@ namespace KodEngine.Core
 
 			MeshCollider collider3 = cube3.AttachComponent<MeshCollider>();
 			collider3.mesh = boxMesh3;
+		}
+		
+		public T GetComponent<T>() where T : Component
+		{
+			Type type = typeof(T);
+			
+			foreach (Component component in components)
+			{
+				if (component.GetType() == type)
+				{
+					return (T) component;
+				}
+			}
+			return null;
 		}
 
 		public T AttachComponent<T>() where T : Component, new()

@@ -57,7 +57,7 @@ namespace KodEngine.KodEBase
 			set
 			{
 				_x = value;
-				unityVector3.x = value;
+				_unityVector3.x = value;
 			}
 		}
 		
@@ -71,7 +71,7 @@ namespace KodEngine.KodEBase
 			set
 			{
 				_y = value;
-				unityVector3.y = value;
+				_unityVector3.y = value;
 			}
 		}
 
@@ -85,10 +85,24 @@ namespace KodEngine.KodEBase
 			set
 			{
 				_z = value;
-				unityVector3.z = value;
+				_unityVector3.z = value;
 			}
 		}
-		public UnityEngine.Vector3 unityVector3;
+		private UnityEngine.Vector3 _unityVector3;
+		public UnityEngine.Vector3 unityVector3
+		{
+			get
+			{
+				return _unityVector3;
+			}
+			set
+			{
+				_unityVector3 = value;
+				_x = value.x;
+				_y = value.y;
+				_z = value.z;
+			}
+		}
 
 		public static Float3 zero
 		{

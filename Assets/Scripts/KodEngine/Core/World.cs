@@ -11,24 +11,58 @@ namespace KodEngine.Core
 
 	public class World
 	{
+		public Unity.Netcode.NetworkVariable<UnityEngine.Vector3> Position = new Unity.Netcode.NetworkVariable<UnityEngine.Vector3>();
 		public Slot root;
+		public string worldID;
+		public List<User> users;
 		public event Focus OnFocusGained;
 		public event Focus OnFocusLost;
+
+		public void OnConnection(Unity.Netcode.NetworkManager.ConnectionApprovalRequest request, Unity.Netcode.NetworkManager.ConnectionApprovalResponse response)
+		{
+			//UnityEngine.Debug.Log(System.Text.Encoding.ASCII.GetString(request.Payload));
+			
+			if (System.Text.Encoding.ASCII.GetString(request.Payload) == worldID || Unity.Netcode.NetworkManager.Singleton.IsHost)
+			{
+				response.Approved = true;
+				UnityEngine.Debug.Log("Building Player...");
+				Slot playerSlot = root.CreateChild();
+				User user = new User("UserName", "UserID", "MachineID", WorldManager.GetWorldFromID(worldID));
+				user.userRoot = playerSlot;
+				users.Add(user);
+
+				playerSlot.name = "Player";
+				
+
+				playerSlot.AttachComponent<PlayerVisual>();
+				
+			} else
+			{
+				//UnityEngine.Debug.Log("Player rejected");
+			}
+		}
 
 		public void Close()
 		{
 
 		}
 
-		public World() : this(WorldType.Default)
+		public World(string worldID) : this(WorldType.Default, worldID)
 		{
 		}
 
 		// Constructor
-		public World(WorldType type)
+		public World(WorldType type, string worldID)
 		{
+			this.worldID = worldID;
 			// Create the world root
 			root = CreateSlot("Root");
+
+			// Create user list
+			users = new List<User>();
+
+			// Create the world network listener object
+			KodEngine.NetworkManager.OnPlayerConnection += OnConnection;
 
 			UnityEngine.GameObject gameObject = new UnityEngine.GameObject(type.ToString());
 			gameObject.transform.parent = WorldManager.worldRoot.transform;
@@ -38,6 +72,7 @@ namespace KodEngine.Core
 			switch (type)
 			{
 				case WorldType.Default:
+					worldID = "0";
 					Slot cube = new Slot("Cube", this);
 					cube.SetParent(root);
 
@@ -90,15 +125,19 @@ namespace KodEngine.Core
 					root.AttachPlane(UnityEngine.Color.grey);
 					break;
 				case WorldType.Space:
+					worldID = "1";
 					root.AttachPlane(UnityEngine.Color.black);
 					break;
 				case WorldType.Gridspace:
+					worldID = "2";
 					root.AttachPlane(UnityEngine.Color.white);
 					break;
 				case WorldType.Debug:
+					worldID = "3";
 					root.AttachPlane(UnityEngine.Color.blue);
 					break;
 				case WorldType.Custom:
+					worldID = "4";
 					root.AttachPlane(UnityEngine.Color.red);
 					break;
 			}
@@ -120,6 +159,14 @@ namespace KodEngine.Core
 		public Slot CreateSlot(string name)
 		{
 			return new Slot(name, this);
+		}
+		
+		//world.AddUser("Username", "UserID", "MachineID", owningWorld, userRoot, networkInstance);
+		public User AddUser(string userName, string userID, string machineID, PlayerNetworkInstance networkInstance)
+		{
+			User user = new User(userName, userID, machineID, this);
+			users.Add(user);
+			return user;
 		}
 	}
 

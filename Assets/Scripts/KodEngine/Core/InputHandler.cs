@@ -12,10 +12,12 @@ public class InputHandler
 	private InputAction _moveAction;
 	private InputAction _jumpAction;
 	private InputAction _toggleSessionAction;
+	private InputAction _primaryInteractAction;
 
 	// KodEngine Input Actions
 	public event Action JumpEvent;
 	public event Action ToggleSessionEvent;
+	public event Action PrimaryInteractAction;
 
 	public InputHandler(UnityInputHandler unityInputHandler)
 	{
@@ -32,17 +34,26 @@ public class InputHandler
 		_toggleSessionAction = unityInputHandler.Player.ToggleFocusedSession;
 		unityInputHandler.Player.ToggleFocusedSession.performed += OnToggleSession;
 		_toggleSessionAction.Enable();
+
+		_primaryInteractAction = unityInputHandler.Player.PrimaryInteract;
+		unityInputHandler.Player.PrimaryInteract.performed += OnPrimaryInteract;
+		_primaryInteractAction.Enable();
 		
 	}
 
-	public void OnJump(InputAction.CallbackContext context)
+	void OnJump(InputAction.CallbackContext context)
 	{
 		JumpEvent?.Invoke();
 	}
 
-	public void OnToggleSession(InputAction.CallbackContext context)
+	void OnToggleSession(InputAction.CallbackContext context)
 	{
 		ToggleSessionEvent?.Invoke();
+	}
+
+	void OnPrimaryInteract(InputAction.CallbackContext context)
+	{
+		PrimaryInteractAction?.Invoke();
 	}
 
 	public Vector2 ReadMoveDirection()

@@ -1,5 +1,5 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
+//using UnityEngine.InputSystem;
 using KodEngine.Core;
 
 namespace KodEngine.Component
@@ -66,6 +66,7 @@ namespace KodEngine.Component
 		private GameObject _mainCamera;
 
 		private const float _threshold = 0.01f;
+
 
 		public override string helpText
 		{
@@ -149,6 +150,8 @@ namespace KodEngine.Component
 			{
 				// move
 				inputDirection = _controllerObject.transform.right * _input.ReadMoveDirection().x + _controllerObject.transform.forward * _input.ReadMoveDirection().y;
+
+				
 			}
 
 			// move the player
@@ -255,7 +258,7 @@ namespace KodEngine.Component
 			_controller = _controllerObject.gameObject.GetComponent<UnityEngine.CharacterController>();
 			_input = Engine._inputHandler;
 
-			Cursor.lockState = CursorLockMode.Locked;
+			//Cursor.lockState = CursorLockMode.Locked;
 
 			// reset our timeouts on start
 			_jumpTimeoutDelta = JumpTimeout;
