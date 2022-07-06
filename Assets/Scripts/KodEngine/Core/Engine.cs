@@ -14,6 +14,7 @@ namespace KodEngine
 		public static Core.BuiltInMaterial builtInMaterial;
 
 		public static event Update OnCommonUpdate;
+		public static event Update OnEngineInit;
 
 		void Awake()
 		{
@@ -29,12 +30,13 @@ namespace KodEngine
 			WorldManager worldManager = new WorldManager(gameObject);
 
 			_inputHandler.PrimaryInteractAction += Debug;
-	
-			worldManager.LoadDefaultWorld();
-			worldManager.LoadWorld(WorldType.Gridspace);
-			worldManager.LoadWorld(WorldType.Debug);
-			WorldManager.FocusWorld(0);
 
+
+			WorldManager.CreateLocalHome();
+
+
+			// This marks that the engine has completely initialized and will begin to call Unity methods to finish setup.
+			EngineInit();
 		}
 
 		// Update is called once per frame
@@ -48,26 +50,25 @@ namespace KodEngine
 			EngineUpdate();
 		}
 
+		public void EngineInit()
+		{
+			OnEngineInit?.Invoke();
+		}
+
 		public void EngineUpdate()
 		{
 			OnCommonUpdate?.Invoke();
 		}
 
+		public void Debug2()
+		{
+			WorldManager.LoadWorld(@"C:\Users\koduf\Documents\GitHub\KodVR\Test.json");
+		}
+		
 		public void Debug()
 		{
-			PlayerNetworkInstance instance = null;
-			UnityEngine.Debug.Log("Left mouse button pressed");
-			if (Unity.Netcode.NetworkManager.Singleton.IsHost)
-			{
-				foreach (ulong uid in Unity.Netcode.NetworkManager.Singleton.ConnectedClientsIds)
-				{
-					if (Unity.Netcode.NetworkManager.Singleton.LocalClient.ClientId == uid)
-					{
-						instance = Unity.Netcode.NetworkManager.Singleton.SpawnManager.GetPlayerNetworkObject(uid).GetComponent<PlayerNetworkInstance>();
-						instance.SubmitPositionRequestServerRpc();
-					}
-				}
-			}
+			World.SerializeWorld();
+			Debug2();
 		}
 	}
 }

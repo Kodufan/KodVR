@@ -40,6 +40,7 @@ namespace KodEngine.Component
 
 		[Header("Cinemachine")]
 		[Tooltip("The follow target set in the Cinemachine Virtual Camera that the camera will follow")]
+		[Newtonsoft.Json.JsonIgnore]
 		public GameObject CinemachineCameraTarget;
 		[Tooltip("How far in degrees can you move the camera up")]
 		public float TopClamp = 90.0f;
@@ -265,35 +266,24 @@ namespace KodEngine.Component
 			_fallTimeoutDelta = FallTimeout;
 
 			Engine.OnCommonUpdate += OnUpdate;
-			owner.owningWorld.OnFocusGained += OnAwake;
-			owner.owningWorld.OnFocusLost += OnAsleep;
+			_input.JumpEvent += Jump;
 		}
 
 		public override void OnUpdate()
 		{
-			if (owner.owningWorld == WorldManager.focusedWorld)
-			{
-				GroundedCheck();
-				Move();
-				UpdateGravity();
-				CameraRotation();
-			}
-		}
-
-		public override void OnAwake()
-		{
-			_input.JumpEvent += Jump;
-		}
-
-		public override void OnAsleep()
-		{
-			_input.JumpEvent -= Jump;
+			GroundedCheck();
+			Move();
+			UpdateGravity();
+			CameraRotation();
 		}
 
 		public override void OnDestroy()
 		{
+			Object.Destroy(CinemachineCameraTarget);
+			Object.Destroy(_mainCamera);
 			Object.Destroy(_controllerObject);
 			_input.JumpEvent -= Jump;
+			Engine.OnCommonUpdate -= OnUpdate;
 		}
 
 		public override void OnChange()

@@ -32,7 +32,6 @@ namespace KodEngine.Component
 			renderer.material = material;
 
 			User user = owner.TryGetUser();
-			UnityEngine.Debug.Log(user);
 			user.networkInstance.changed += OnUpdate;
 		}
 		
@@ -42,19 +41,6 @@ namespace KodEngine.Component
 		}
 
 		public override void OnUpdate()
-		{
-		}
-
-		public void OnConnection(Unity.Netcode.NetworkManager.ConnectionApprovalRequest request, Unity.Netcode.NetworkManager.ConnectionApprovalResponse response)
-		{
-			UnityEngine.Debug.Log("Hi");
-		}
-
-		public override void OnAwake()
-		{
-		}
-
-		public override void OnAsleep()
 		{
 		}
 

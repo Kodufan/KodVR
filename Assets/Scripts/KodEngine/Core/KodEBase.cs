@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
 
@@ -13,15 +14,75 @@ namespace KodEngine.KodEBase
 
 	public class RefID
 	{
-		
+		public static ulong currID;
+		public ulong id;
+
+		public RefID()
+		{
+			this.id = currID;
+			currID++;
+		}
 	}
 	public class Color
 	{
-		public float r;
-		public float g;
-		public float b;
-		public float a;
-		public UnityEngine.Color unityColor;
+		private float _r;
+		public float r
+		{
+			get { return _r; }
+			set {
+				_r = value;
+				_unityColor.r = value;
+			}
+		}
+
+		private float _g;
+		public float g
+		{
+			get { return _g; }
+			set
+			{
+				_g = value;
+				_unityColor.g = value;
+			}
+		}
+
+		private float _b;
+		public float b
+		{
+			get { return _b; }
+			set
+			{
+				_b = value;
+				_unityColor.b = value;
+			}
+		}
+
+		private float _a;
+		public float a
+		{
+			get { return _a; }
+			set
+			{
+				_a = value;
+				_unityColor.a = value;
+			}
+		}
+
+		private UnityEngine.Color _unityColor;
+
+		[Newtonsoft.Json.JsonIgnore]
+		public UnityEngine.Color unityColor
+		{
+			get { return _unityColor; }
+			set
+			{
+				_unityColor = value;
+				_r = value.r;
+				_g = value.g;
+				_b = value.b;
+				_a = value.a;
+			}
+		}
 
 		public Color(UnityEngine.Color unityColor) : this(unityColor.r, unityColor.g, unityColor.b, unityColor.a) {}
 
@@ -89,6 +150,8 @@ namespace KodEngine.KodEBase
 			}
 		}
 		private UnityEngine.Vector3 _unityVector3;
+
+		[Newtonsoft.Json.JsonIgnore]
 		public UnityEngine.Vector3 unityVector3
 		{
 			get
@@ -149,7 +212,7 @@ namespace KodEngine.KodEBase
 			set
 			{
 				_x = value;
-				unityQuaternion.x = value;
+				_unityQuaternion.x = value;
 			}
 		}
 		
@@ -163,7 +226,7 @@ namespace KodEngine.KodEBase
 			set
 			{
 				_y = value;
-				unityQuaternion.y = value;
+				_unityQuaternion.y = value;
 			}
 		}
 		
@@ -177,7 +240,7 @@ namespace KodEngine.KodEBase
 			set
 			{
 				_z = value;
-				unityQuaternion.z = value;
+				_unityQuaternion.z = value;
 			}
 		}
 		
@@ -191,11 +254,27 @@ namespace KodEngine.KodEBase
 			set
 			{
 				_w = value;
-				unityQuaternion.w = value;
+				_unityQuaternion.w = value;
 			}
 		}
-		
-		public UnityEngine.Quaternion unityQuaternion;
+
+		private UnityEngine.Quaternion _unityQuaternion;
+
+		[Newtonsoft.Json.JsonIgnore]
+		public UnityEngine.Quaternion unityQuaternion
+		{
+			get
+			{
+				return new UnityEngine.Quaternion(_x, _y, _z, _w);
+			}
+			set
+			{
+				_x = value.x;
+				_y = value.y;
+				_z = value.z;
+				_w = value.w;
+			}
+		}
 
 		public static FloatQ identity
 		{

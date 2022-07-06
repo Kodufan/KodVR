@@ -6,6 +6,7 @@ namespace KodEngine.Core
 {
 	public enum WorldType
 	{
+		Localhome,
 		Default,
 		Space,
 		Gridspace,

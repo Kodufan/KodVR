@@ -7,110 +7,61 @@ namespace KodEngine.Core
 	public class WorldManager
 	{
 		// List of worlds
-		public static List<World> worlds = new List<World>();
-		public static World focusedWorld;
-		public static int focusedWorldIndex;
 		public static GameObject worldRoot;
+		public static World currentWorld;
 		InputHandler _input = new InputHandler(new UnityInputHandler());
 		public static int worldID;
 
 		public WorldManager(GameObject gameObject)
 		{
 			worldRoot = new GameObject("World root");
-			focusedWorldIndex = -1;
 			worldRoot.transform.parent = gameObject.transform;
-			_input.ToggleSessionEvent += ToggleSession;
+			//_input.ToggleSessionEvent += ToggleSession;
 		}
 
-		public World LoadDefaultWorld()
+		public static void CreateLocalHome()
 		{
-			return LoadWorld(WorldType.Default);
+			CreateWorld(WorldType.Localhome, "localhome");
 		}
 
-		public static World GetWorldFromID(string id)
+		public static void CreateWorld(WorldType worldType, string worldID)
 		{
-			foreach (World world in worlds)
+			World world = null;
+			if (worldID == "localhome")
 			{
-				if (world.worldID == id)
-				{
-					return world;
-				}
+				world = new World(worldType, "localhome");
+
+			} else
+			{
+				world = new World(worldType, worldType.ToString());
 			}
-			return null;
-		}
-
-		public World LoadWorld(WorldType worldType)
-		{
-			World world = new World(worldType, worldID.ToString());
-			worldID++;
-			worlds.Add(world);
-			//world.AddUser("Username", "UserID", "MachineID");
-			FocusWorld(world);
-			return world;
-		}
-
-		public void ConnectToWorld()
-		{
 			
+			currentWorld = world;
 		}
 
-		public static void FocusWorld(int index)
+		public static void LoadWorld(string filePath)
 		{
-			if (index == focusedWorldIndex)
-			{
-				Debug.LogError("World already focused!");
-				return;
-			}
-			if (index < 0 || index >= worlds.Count)
-			{
-				Debug.LogError("Invalid world index: " + index);
-				return;
-			}
+			World.root.Destroy();
+			Slot deserializedProduct = Newtonsoft.Json.JsonConvert.DeserializeObject<Slot>(System.IO.File.ReadAllText(filePath), new JSONReader());
+			// { TypeNameHandling = Newtonsoft.Json.TypeNameHandling.All }
+			World.root = deserializedProduct;
 
-			if (focusedWorldIndex != -1)
+			string fileName = "Test2.json";
+			string json = Newtonsoft.Json.JsonConvert.SerializeObject(World.root, Newtonsoft.Json.Formatting.None, new Newtonsoft.Json.JsonSerializerSettings()
 			{
-				worlds[focusedWorldIndex].Unfocus();
-			}
-			focusedWorldIndex = index;
-			focusedWorld = worlds[focusedWorldIndex];
-			focusedWorld.Focus();
+				TypeNameHandling = Newtonsoft.Json.TypeNameHandling.Auto,
+				TypeNameAssemblyFormatHandling = Newtonsoft.Json.TypeNameAssemblyFormatHandling.Simple
+			});
+			System.IO.File.WriteAllText(fileName, json);
 		}
 
-		public void FocusWorld(World world)
-		{
-			if (worlds.Contains(world))
+		// Will eventually need to duplicate a Unity Netcode manager and set it as a client
+		public static void ConnectToWorld(string worldID, User user)
+		{			
+			if (currentWorld != null)
 			{
-				FocusWorld(worlds.IndexOf(world));
+				CreateWorld(WorldType.Default, worldID);
 			}
-			else
-			{
-				Debug.LogError("World not found: " + world);
-			}
-		}
-
-		public void ToggleSession()
-		{
-			if (focusedWorldIndex == -1)
-			{
-				Debug.LogError("No world focused!");
-				return;
-			}
-
-			if (focusedWorldIndex + 1 <= worlds.Count - 1)
-			{
-				FocusWorld(focusedWorldIndex + 1);
-			}
-			else
-			{
-				FocusWorld(0);
-			}
-		}
-
-
-		public void ExitWorld(World world)
-		{
-			world.Close();
-			worlds.Remove(world);
 		}
 	}
 }

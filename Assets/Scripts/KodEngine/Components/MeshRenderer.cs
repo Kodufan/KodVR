@@ -51,14 +51,8 @@ namespace KodEngine.Component
 			}
 		}
 
-		public override void OnAsleep()
-		{
-		}
-
 		public override void OnAttach()
 		{
-			owner.owningWorld.OnFocusGained += OnAwake;
-			owner.owningWorld.OnFocusLost += OnAsleep;
 			Engine.OnCommonUpdate += OnUpdate;
 			renderer = owner.gameObject.AddComponent<UnityEngine.MeshRenderer>();
 			meshFilter = owner.gameObject.AddComponent<UnityEngine.MeshFilter>();
@@ -66,10 +60,6 @@ namespace KodEngine.Component
 			builtInMaterial = new BuiltInMaterial();
 			builtInMaterial.owner = owner;
 			builtInMaterial.OnAttach();
-		}
-
-		public override void OnAwake()
-		{
 		}
 
 		public override void OnDestroy()

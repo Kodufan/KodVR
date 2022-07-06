@@ -4,21 +4,45 @@ using UnityEngine;
 using Unity.Netcode;
 
 public delegate void Changed(Vector3 float3);
+public delegate void Created(ulong uid);
+public delegate void Destroyed(ulong uid);
 
 public class PlayerNetworkInstance : NetworkBehaviour
 {
 	public event Changed changed;
+	public static event Created created;
+	public static event Destroyed destroyed;
 
 	public NetworkVariable<Vector3> Position = new NetworkVariable<Vector3>();
 
+	public CustomMessagingManager manager;
+	
 	public string worldID;
 
 	
 	// Start is called before the first frame update
 	void Start()
     {
-        
-    }
+		if (IsOwner)
+		{
+			string name = "test";
+			manager = NetworkManager.Singleton.CustomMessagingManager;
+			//manager.RegisterNamedMessageHandler(name, OnRecieveMessage);
+			manager.OnUnnamedMessage += OnRecieveMessage;
+
+			//Sending
+			using FastBufferWriter writer = new FastBufferWriter(256, Unity.Collections.Allocator.Temp);
+			writer.WriteValueSafe("This is a test message from uid: " + NetworkManager.Singleton.LocalClient.ClientId);
+			ulong serverID = NetworkManager.ServerClientId;
+			manager.SendUnnamedMessage(serverID, writer, NetworkDelivery.ReliableSequenced); //NetworkDelivery is optional.	
+		}
+	}
+
+	void OnRecieveMessage(ulong senderClientId, FastBufferReader messagePayload)
+	{
+		messagePayload.ReadValueSafe(out string message); //Example
+		Debug.Log(message);
+	}
 
     // Update is called once per frame
     void Update()
@@ -41,7 +65,14 @@ public class PlayerNetworkInstance : NetworkBehaviour
 	{
 		if (IsOwner)
 		{
-			Debug.Log("Hi");
+			Debug.Log("Network object initialized with ownerID: " + OwnerClientId);
+			created?.Invoke(OwnerClientId);
 		}
+	}
+
+	public override void OnNetworkDespawn()
+	{
+		destroyed?.Invoke(OwnerClientId);
+		Debug.Log("Bye :(");
 	}
 }

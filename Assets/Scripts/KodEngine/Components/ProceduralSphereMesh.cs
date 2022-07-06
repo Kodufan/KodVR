@@ -20,24 +20,14 @@ namespace KodEngine.Component
 			}
 		}
 
-		public override void OnAsleep()
-		{
-		}
-
 		public override void OnAttach()
 		{
 			base.OnAttach();
-			owner.owningWorld.OnFocusGained += OnAwake;
-			owner.owningWorld.OnFocusLost += OnAsleep;
 			Engine.OnCommonUpdate += OnUpdate;
 
 			meshObject.transform.SetParent(owner.gameObject.transform);
 
 			meshFilter.mesh = Resources.GetBuiltinResource<UnityEngine.Mesh>("Sphere.fbx");
-		}
-
-		public override void OnAwake()
-		{
 		}
 
 		public override void OnDestroy()

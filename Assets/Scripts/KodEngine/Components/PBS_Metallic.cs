@@ -9,8 +9,13 @@ namespace KodEngine.Component
 	public class PBS_Metallic : Core.Component
 	{
 		public System.Uri shaderUri { get; set; }
+
+		[Newtonsoft.Json.JsonIgnore]
 		public UnityEngine.Material material { get; set; }
+		
 		private Texture2D _texture;
+
+		[Newtonsoft.Json.JsonIgnore]
 		public Texture2D texture
 		{
 			get
@@ -25,6 +30,8 @@ namespace KodEngine.Component
 		}
 
 		private Color _albedo = new Color(1, 1, 1, 1);
+
+		[Newtonsoft.Json.JsonIgnore]
 		public Color albedo
 		{
 			get
@@ -49,24 +56,13 @@ namespace KodEngine.Component
 			}
 		}
 
-
-		public override void OnAsleep()
-		{
-		}
-
 		public override void OnAttach()
 		{
-			owner.owningWorld.OnFocusGained += OnAwake;
-			owner.owningWorld.OnFocusLost += OnAsleep;
 			Engine.OnCommonUpdate += OnUpdate;
 			UnityEngine.Shader shader = UnityEngine.Resources.Load<UnityEngine.Shader>("Shaders/Root_Folder/Standard");
 			material = new UnityEngine.Material(shader);
 			//UnityEditor.Presets.Preset preset = UnityEngine.Resources.Load<UnityEditor.Presets.Preset>("Materials/PBS_Metallic");
 			//preset.ApplyTo(material);
-		}
-
-		public override void OnAwake()
-		{
 		}
 
 		public override void OnDestroy()

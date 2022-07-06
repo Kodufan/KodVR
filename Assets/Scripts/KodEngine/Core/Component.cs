@@ -8,7 +8,12 @@ namespace KodEngine.Core
 	{
 		// Owner is settable in order to allow attaching components. I do not like this solution,
 		// but I do not know how to avoid it
+		[Newtonsoft.Json.JsonIgnore]
 		public Slot owner { get; set; }
+
+		public string componentName => "KodEngine." + GetType().Name;
+
+		[Newtonsoft.Json.JsonIgnore]
 		public abstract string helpText { get; set; }
 		public bool isEnabled { get; set; }
 		public int updateOrder { get; set; }
@@ -21,8 +26,6 @@ namespace KodEngine.Core
 		public Component() { }
 
 		public abstract void OnAttach();
-		public abstract void OnAwake();
-		public abstract void OnAsleep();
 		public abstract void OnUpdate();
 		public abstract void OnChange();
 		public abstract void OnDestroy();

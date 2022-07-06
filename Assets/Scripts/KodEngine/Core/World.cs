@@ -5,6 +5,8 @@ using KodEngine.Component;
 using KodEngine.Core;
 using KodEngine.KodEBase;
 
+using Newtonsoft.Json.Linq;
+
 namespace KodEngine.Core
 {
 	public delegate void Focus();
@@ -12,33 +14,22 @@ namespace KodEngine.Core
 	public class World
 	{
 		public Unity.Netcode.NetworkVariable<UnityEngine.Vector3> Position = new Unity.Netcode.NetworkVariable<UnityEngine.Vector3>();
-		public Slot root;
+		public static Slot root;
 		public string worldID;
-		public List<User> users;
-		public event Focus OnFocusGained;
-		public event Focus OnFocusLost;
+		public static User hostUser;
+		public static List<User> users;
+		public Dictionary<RefID, IWorldElement> RefIDDictionary = new Dictionary<RefID, IWorldElement>();
 
-		public void OnConnection(Unity.Netcode.NetworkManager.ConnectionApprovalRequest request, Unity.Netcode.NetworkManager.ConnectionApprovalResponse response)
+		public void OnDisconnected(ulong uid)
 		{
-			//UnityEngine.Debug.Log(System.Text.Encoding.ASCII.GetString(request.Payload));
-			
-			if (System.Text.Encoding.ASCII.GetString(request.Payload) == worldID || Unity.Netcode.NetworkManager.Singleton.IsHost)
+			foreach (User user in users)
 			{
-				response.Approved = true;
-				UnityEngine.Debug.Log("Building Player...");
-				Slot playerSlot = root.CreateChild();
-				User user = new User("UserName", "UserID", "MachineID", WorldManager.GetWorldFromID(worldID));
-				user.userRoot = playerSlot;
-				users.Add(user);
-
-				playerSlot.name = "Player";
-				
-
-				playerSlot.AttachComponent<PlayerVisual>();
-				
-			} else
-			{
-				//UnityEngine.Debug.Log("Player rejected");
+				if (user.unityNetworkID == uid)
+				{
+					user.userRoot.Destroy();
+					users.Remove(user);
+					break;
+				}
 			}
 		}
 
@@ -49,6 +40,7 @@ namespace KodEngine.Core
 
 		public World(string worldID) : this(WorldType.Default, worldID)
 		{
+			this.worldID = worldID;
 		}
 
 		// Constructor
@@ -61,9 +53,6 @@ namespace KodEngine.Core
 			// Create user list
 			users = new List<User>();
 
-			// Create the world network listener object
-			KodEngine.NetworkManager.OnPlayerConnection += OnConnection;
-
 			UnityEngine.GameObject gameObject = new UnityEngine.GameObject(type.ToString());
 			gameObject.transform.parent = WorldManager.worldRoot.transform;
 			root.SetParent(gameObject);
@@ -71,9 +60,9 @@ namespace KodEngine.Core
 			// Create the world
 			switch (type)
 			{
-				case WorldType.Default:
-					worldID = "0";
-					Slot cube = new Slot("Cube", this);
+				case WorldType.Localhome:
+
+					Slot cube = new Slot("Cube");
 					cube.SetParent(root);
 
 					cube.position = new Float3(1, 0, -.75f);
@@ -83,6 +72,8 @@ namespace KodEngine.Core
 
 					PBS_Metallic material = cube.AttachComponent<PBS_Metallic>();
 					material.texture = tex;
+
+					UnityEngine.Debug.Log(material.componentName);
 
 					ProceduralBoxMesh boxMesh = cube.AttachComponent<ProceduralBoxMesh>();
 					ProceduralSphereMesh sphereMesh = cube.AttachComponent<ProceduralSphereMesh>();
@@ -97,8 +88,8 @@ namespace KodEngine.Core
 					collider.mesh = boxMesh;
 
 
-					
-					Slot cube2 = new Slot("Cube2", this);
+
+					Slot cube2 = new Slot("Cube2");
 					cube2.SetParent(root);
 
 					cube2.position = new Float3(1, 0, .75f);
@@ -120,8 +111,10 @@ namespace KodEngine.Core
 					MeshCollider collider2 = cube2.AttachComponent<MeshCollider>();
 					collider2.mesh = boxMesh2;
 
-
-
+					root.AttachPlane(new UnityEngine.Color(1, 1, 0, 1));
+					root.AttachComponent<CharacterController>();
+					break;
+				case WorldType.Default:
 					root.AttachPlane(UnityEngine.Color.grey);
 					break;
 				case WorldType.Space:
@@ -141,33 +134,60 @@ namespace KodEngine.Core
 					root.AttachPlane(UnityEngine.Color.red);
 					break;
 			}
-			root.AttachComponent<CharacterController>();
 		}
 
-		public void Focus()
+		public void Destroy()
 		{
-			root.gameObject.SetActive(true);
-			OnFocusGained?.Invoke();
-		}
-
-		public void Unfocus()
-		{
-			root.gameObject.SetActive(false);
-			OnFocusLost?.Invoke();
+			root.Destroy();
 		}
 
 		public Slot CreateSlot(string name)
 		{
-			return new Slot(name, this);
+			return new Slot(name);
 		}
 		
 		//world.AddUser("Username", "UserID", "MachineID", owningWorld, userRoot, networkInstance);
-		public User AddUser(string userName, string userID, string machineID, PlayerNetworkInstance networkInstance)
+		public User BuildUser(User user)
 		{
-			User user = new User(userName, userID, machineID, this);
+			user.userName = "Client";
+			Slot userRoot = root.CreateChild();
+			user.userRoot = userRoot;
+			userRoot.name = user.userName;
+			users.Add(user);
+
+			User.userInitialized += ConstructVisual;
+
+
+
+			return user;
+		}
+
+		public User BuildHostUser(User user)
+		{
+			user.userName = "Host";
+			Slot userRoot = root.CreateChild();
+			userRoot.name = user.userName;
+			user.userRoot = userRoot;
+			
 			users.Add(user);
 			return user;
 		}
-	}
 
+		public void ConstructVisual(User user)
+		{
+			user.userRoot.AttachComponent<PlayerVisual>();
+		}
+	
+		public static void SerializeWorld()
+		{
+			string fileName = "Test.json";
+			string json = Newtonsoft.Json.JsonConvert.SerializeObject(root, Newtonsoft.Json.Formatting.None, new Newtonsoft.Json.JsonSerializerSettings()
+			{
+				TypeNameHandling = Newtonsoft.Json.TypeNameHandling.All,
+				TypeNameAssemblyFormatHandling = Newtonsoft.Json.TypeNameAssemblyFormatHandling.Simple
+			});
+			System.IO.File.WriteAllText(fileName, json);
+			byte[] jsonBytes = System.Text.Encoding.UTF8.GetBytes(json);
+		}
+	}
 }

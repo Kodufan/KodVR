@@ -7,12 +7,16 @@ namespace KodEngine.Core
 {
 	public abstract class Mesh : Component
 	{
-		public GameObject meshObject = new GameObject("Mesh Object");
+		[Newtonsoft.Json.JsonIgnore]
+		public GameObject meshObject;
+
+		[Newtonsoft.Json.JsonIgnore]
 		public MeshFilter meshFilter;
 
 
 		public override void OnAttach()
 		{
+			meshObject = new GameObject("Mesh Object");
 			meshObject.transform.parent = owner.gameObject.transform;
 			meshFilter = meshObject.AddComponent<MeshFilter>();
 		}

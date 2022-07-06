@@ -7,6 +7,9 @@ namespace KodEngine.Component
 {
 	public class BuiltInMaterial : Core.Component
 	{
+		private Material _material;
+
+		[Newtonsoft.Json.JsonIgnore]
 		public Material material
 		{
 			get
@@ -27,19 +30,9 @@ namespace KodEngine.Component
 			}
 		}
 
-		public override void OnAsleep()
-		{
-		}
-
 		public override void OnAttach()
 		{
-			owner.owningWorld.OnFocusGained += OnAwake;
-			owner.owningWorld.OnFocusLost += OnAsleep;
 			Engine.OnCommonUpdate += OnUpdate;
-		}
-
-		public override void OnAwake()
-		{
 		}
 
 		public override void OnDestroy()

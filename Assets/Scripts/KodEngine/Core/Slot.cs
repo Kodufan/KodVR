@@ -1,19 +1,20 @@
-using System.Collections;
-using System.Collections.Generic;
-using System;
-using KodEngine.Core;
 using KodEngine.Component;
 using KodEngine.KodEBase;
+using System;
+using System.Collections.Generic;
 
 namespace KodEngine.Core
 {
+	public delegate void OnDestroy();
 	public class Slot : IComparable
 	{
 		public string name;
 		public string tag;
 		private int orderOffset;
 
-		private Float3 _position;
+		[Newtonsoft.Json.JsonIgnore]
+		private Float3 _position { get; set; }
+
 		public Float3 position
 		{
 			get
@@ -23,11 +24,13 @@ namespace KodEngine.Core
 			set
 			{
 				_position = value;
-				this.gameObject.transform.localPosition = value.unityVector3;
+				gameObject.transform.localPosition = value.unityVector3;
 			}
 		}
 
-		private FloatQ _rotation;
+		[Newtonsoft.Json.JsonIgnore]
+		private FloatQ _rotation { get; set; }
+
 		public FloatQ rotation
 		{
 			get
@@ -37,11 +40,13 @@ namespace KodEngine.Core
 			set
 			{
 				_rotation = value;
-				this.gameObject.transform.localRotation = value.unityQuaternion;
+				gameObject.transform.localRotation = value.unityQuaternion;
 			}
 		}
 
-		private Float3 _scale;
+		[Newtonsoft.Json.JsonIgnore]
+		private Float3 _scale { get; set; }
+
 		public Float3 scale
 		{
 			get
@@ -51,28 +56,33 @@ namespace KodEngine.Core
 			set
 			{
 				_scale = value;
-				this.gameObject.transform.localScale = value.unityVector3;
+				gameObject.transform.localScale = value.unityVector3;
 			}
 		}
-		
-		public World owningWorld;
+
+		[Newtonsoft.Json.JsonIgnore]
 		public Slot parent;
+		
 		public List<Slot> children;
 		public List<Component> components;
 		public bool isActive;
+
+		[Newtonsoft.Json.JsonIgnore]
 		public UnityEngine.GameObject gameObject;
+
+		public event OnDestroy onDestroy;
 
 		// Fix constructors so that slots can be created anywhere in a heirarchy and also any session
 		// Also force slots to be placed in sessions
-		public Slot(World owningWorld) : this("", "", Float3.zero, FloatQ.identity, Float3.one, null, owningWorld, true)
+		public Slot() : this("", "", Float3.zero, FloatQ.identity, Float3.one, null, true)
 		{
 		}
 
-		public Slot(string name, World owningWorld) : this(name, "", Float3.zero, FloatQ.identity, Float3.one, null, owningWorld, true)
+		public Slot(string name) : this(name, "", Float3.zero, FloatQ.identity, Float3.one, null, true)
 		{
 		}
 
-		public Slot(string name, string tag, Float3 position, FloatQ rotation, Float3 scale, Slot parent, World owningWorld, bool isActive)
+		public Slot(string name, string tag, Float3 position, FloatQ rotation, Float3 scale, Slot parent, bool isActive)
 		{
 			// Must be created first for pos/rot/scale
 			this.gameObject = new UnityEngine.GameObject(name);
@@ -83,8 +93,7 @@ namespace KodEngine.Core
 			this.position = position;
 			this.rotation = rotation;
 			this.scale = scale;
-			this.owningWorld = owningWorld;
-			this.parent = parent;
+			this.parent = parent;	
 			this.children = new List<Slot>();
 			this.components = new List<Component>();
 			this.isActive = true;
@@ -97,7 +106,7 @@ namespace KodEngine.Core
 
 		public void SetParent(Slot parent)
 		{
-			if (parent != null && this.owningWorld == parent.owningWorld && this.parent != parent)
+			if (parent != null && this.parent != parent)
 			{
 				if (this.parent != null)
 				{
@@ -121,27 +130,31 @@ namespace KodEngine.Core
 			}
 		}
 
-		public void destroy()
+		public void Destroy()
 		{
-			destroy(this);
+			Destroy(this);
 		}
 
-		private void destroy(Slot slot)
+		private void Destroy(Slot slot)
 		{
 			if (slot.parent != null)
 			{
+				UnityEngine.Debug.Log(slot.parent.children.IndexOf(slot));
 				slot.parent.children.RemoveAt(slot.parent.children.IndexOf(slot));
 			}
 
+			onDestroy?.Invoke();
+
 			slot.parent = null;
 			UnityEngine.Object.Destroy(slot.gameObject);
-			UnityEngine.Debug.Log("Destroying slot: " + slot);
-			
 		}
 
 		public Slot CreateChild()
 		{
-			Slot newSlot =  new Slot(this.name + " - Child", "", Float3.zero, FloatQ.identity, Float3.one, this, this.owningWorld, true);
+			Slot newSlot =  new Slot(this.name + " - Child", "", Float3.zero, FloatQ.identity, Float3.one, this, true);
+			newSlot.SetParent(this);
+			children.Add(newSlot);
+			children.Sort();
 			return newSlot;
 		}
 
@@ -177,15 +190,14 @@ namespace KodEngine.Core
 			}
 		}
 
-		override
-		public string ToString()
+		public override string ToString()
 		{
 			return name;
 		}
 		
 		public User TryGetUser()
 		{
-			foreach (User user in owningWorld.users)
+			foreach (User user in World.users)
 			{
 				if (TryGetParentSlot(user.userRoot) != null)
 				{
@@ -197,10 +209,11 @@ namespace KodEngine.Core
 
 		public Slot TryGetParentSlot(Slot target)
 		{
+			
 			Slot tempSlot = this;
-			while (tempSlot.parent != null)
+			while (tempSlot != null)
 			{
-				if (tempSlot.parent == target)
+				if (tempSlot == target)
 				{
 					return tempSlot;
 				}
@@ -211,8 +224,8 @@ namespace KodEngine.Core
 
 		public void AttachPlane(UnityEngine.Color albedo)
 		{
-			Slot cube3 = new Slot("Floor", owningWorld);
-			cube3.SetParent(owningWorld.root);
+			Slot cube3 = new Slot("Floor");
+			cube3.SetParent(World.root);
 			
 			cube3.position = new Float3(0, -1, 0);
 
@@ -257,6 +270,8 @@ namespace KodEngine.Core
 		{
 			// This is gross. Component should take a slot as a constructor and then call OnAttach when completed.
 			T component = new T();
+			onDestroy += component.OnDestroy;
+			components.Add(component);
 			component.owner = this;
 			component.OnAttach();
 			return component;

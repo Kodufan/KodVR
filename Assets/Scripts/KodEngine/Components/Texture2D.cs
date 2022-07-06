@@ -11,6 +11,8 @@ namespace KodEngine.Component
 
 		public BuiltInMaterial builtInMaterial;
 
+
+		[Newtonsoft.Json.JsonIgnore]
 		public System.Uri uri
 		{
 			get
@@ -37,24 +39,13 @@ namespace KodEngine.Component
 		}
 
 		// Incorperate OnChanged functionality into setter
-
+		[Newtonsoft.Json.JsonIgnore]
 		public UnityEngine.Texture2D texture { get; set; }
-
-
-		public override void OnAsleep()
-		{
-		}
 
 		public override void OnAttach()
 		{
-			owner.owningWorld.OnFocusGained += OnAwake;
-			owner.owningWorld.OnFocusLost += OnAsleep;
 			Engine.OnCommonUpdate += OnUpdate;
 			//Debug.Log(uri);
-		}
-
-		public override void OnAwake()
-		{
 		}
 
 		public override void OnDestroy()
