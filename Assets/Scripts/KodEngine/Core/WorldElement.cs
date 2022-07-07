@@ -9,9 +9,18 @@ namespace KodEngine.Core
 	{
 		public RefID refID;
 
+		// RefIDs of value 0 will auto increment. Any other number, and the ID will be set to that number
 		public WorldElement()
 		{
 			refID = new RefID();
+			RefTable.RefIDDictionary.Add(refID, this);
+		}
+
+		// This is stupid and bad dumb code.
+		public void SetID(ulong id)
+		{
+			RefTable.RefIDDictionary.Remove(this.refID);
+			refID = new RefID(id);
 			RefTable.RefIDDictionary.Add(refID, this);
 		}
 

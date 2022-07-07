@@ -9,10 +9,6 @@ namespace KodEngine.Component
 	{
 		private System.Uri _uri;
 
-		public BuiltInMaterial builtInMaterial;
-
-
-		[Newtonsoft.Json.JsonIgnore]
 		public System.Uri uri
 		{
 			get
@@ -45,7 +41,8 @@ namespace KodEngine.Component
 		public override void OnAttach()
 		{
 			Engine.OnCommonUpdate += OnUpdate;
-			//Debug.Log(uri);
+
+			uri = new System.Uri(@"C:\NullTex");
 		}
 
 		public override void OnDestroy()
@@ -75,7 +72,6 @@ namespace KodEngine.Component
 
 			} catch (System.Exception e)
 			{
-				UnityEngine.Debug.Log(e.StackTrace.ToString());
 				return (UnityEngine.Texture2D) Engine.builtInMaterial.material.mainTexture;
 			}
 		}

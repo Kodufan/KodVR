@@ -13,7 +13,6 @@ namespace KodEngine.NetKodE
 
 		public static void OnConnection(Unity.Netcode.NetworkManager.ConnectionApprovalRequest request, Unity.Netcode.NetworkManager.ConnectionApprovalResponse response)
 		{
-
 			Core.User user = new Core.User("Username", "UserID", "MachineID", request.ClientNetworkId);
 
 			response.PlayerPrefabHash = null;
@@ -22,7 +21,7 @@ namespace KodEngine.NetKodE
 			if (System.Text.ASCIIEncoding.Default.GetString(request.Payload) == "init")
 			{
 				response.Approved = true;
-				Debug.Log("Building host");
+				Debug.Log("Building host...");
 				KodEngine.Core.WorldManager.currentWorld.BuildHostUser(user);
 				return;
 			}
@@ -42,7 +41,7 @@ namespace KodEngine.NetKodE
 		{
 			Engine.OnEngineInit += OnInit;
 			
-			Debug.Log("Network Engine initializing");
+			Debug.Log("Network Engine initializing...");
 			Unity.Netcode.NetworkManager.Singleton.NetworkConfig.ConnectionData = System.Text.Encoding.ASCII.GetBytes("init");
 			Unity.Netcode.NetworkManager.Singleton.ConnectionApprovalCallback += OnConnection;
 		}

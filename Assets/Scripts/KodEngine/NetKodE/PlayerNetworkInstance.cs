@@ -64,7 +64,6 @@ public class PlayerNetworkInstance : NetworkBehaviour
 	{
 		if (IsOwner)
 		{
-			Debug.Log("Network object initialized with ownerID: " + OwnerClientId);
 			created?.Invoke(OwnerClientId);
 		}
 	}

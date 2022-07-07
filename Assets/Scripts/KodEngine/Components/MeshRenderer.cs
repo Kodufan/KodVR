@@ -35,7 +35,7 @@ namespace KodEngine.Component
 				OnChange();
 			}
 		}
-		public BuiltInMaterial builtInMaterial;
+		public Core.BuiltInMaterial builtInMaterial;
 		private UnityEngine.MeshRenderer renderer;
 		private UnityEngine.MeshFilter meshFilter;
 
@@ -57,10 +57,6 @@ namespace KodEngine.Component
 			Slot ownerSlot = (Slot)owner.Resolve();
 			renderer = ownerSlot.gameObject.AddComponent<UnityEngine.MeshRenderer>();
 			meshFilter = ownerSlot.gameObject.AddComponent<UnityEngine.MeshFilter>();
-
-			builtInMaterial = new BuiltInMaterial();
-			builtInMaterial.owner = owner;
-			builtInMaterial.OnAttach();
 		}
 
 		public override void OnDestroy()
@@ -85,7 +81,7 @@ namespace KodEngine.Component
 
 			if (material == null)
 			{
-				renderer.material = builtInMaterial.material;
+				renderer.material = Engine.builtInMaterial.material;
 			}
 		}
 	}

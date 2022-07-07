@@ -24,7 +24,7 @@ namespace KodEngine.Core
 			this.owner = owner;
 		}
 
-		public Component() { }
+		public Component() : base() { }
 
 		public abstract void OnAttach();
 		public abstract void OnUpdate();

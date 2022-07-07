@@ -95,11 +95,11 @@ namespace KodEngine.Core
 					
 					cube2.SetPosition(new Float3(1, 0, .75f));
 
-					//Texture2D tex2 = cube2.AttachComponent<Texture2D>();
-					//tex2.uri = new System.Uri(@"C:\Users\koduf\Downloads\kindpng_92984.png");
+					Texture2D tex2 = cube2.AttachComponent<Texture2D>();
+					tex2.uri = new System.Uri(@"C:\Users\koduf\Downloads\kindpng_92984.png");
 
 					PBS_Metallic material2 = cube2.AttachComponent<PBS_Metallic>();
-					//material2.texture = tex2;
+					material2.texture = tex2;
 
 					ProceduralBoxMesh boxMesh2 = cube2.AttachComponent<ProceduralBoxMesh>();
 					MeshRenderer renderer2 = cube2.AttachComponent<MeshRenderer>();
@@ -180,7 +180,9 @@ namespace KodEngine.Core
 		{
 			string fileName = "Test.json";
 
-			string json = Newtonsoft.Json.JsonConvert.SerializeObject(RefTable.RefIDDictionary, Newtonsoft.Json.Formatting.None, new Newtonsoft.Json.JsonSerializerSettings()
+			List<WorldElement> worldElements = new List<WorldElement>(RefTable.RefIDDictionary.Values);
+
+			string json = Newtonsoft.Json.JsonConvert.SerializeObject(worldElements, Newtonsoft.Json.Formatting.None, new Newtonsoft.Json.JsonSerializerSettings()
 			{
 				TypeNameHandling = Newtonsoft.Json.TypeNameHandling.All,
 				TypeNameAssemblyFormatHandling = Newtonsoft.Json.TypeNameAssemblyFormatHandling.Simple

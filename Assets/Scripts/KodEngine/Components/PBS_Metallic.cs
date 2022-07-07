@@ -15,7 +15,6 @@ namespace KodEngine.Component
 		
 		private Texture2D _texture;
 
-		[Newtonsoft.Json.JsonIgnore]
 		public Texture2D texture
 		{
 			get
@@ -31,7 +30,6 @@ namespace KodEngine.Component
 
 		private Color _albedo = new Color(1, 1, 1, 1);
 
-		[Newtonsoft.Json.JsonIgnore]
 		public Color albedo
 		{
 			get

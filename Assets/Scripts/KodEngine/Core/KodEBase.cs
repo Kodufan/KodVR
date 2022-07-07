@@ -35,10 +35,9 @@ namespace KodEngine.KodEBase
 		}
 	}
 
-	public class ReferenceField<T> where T : WorldElement
+	public class ReferenceField<T> : WorldElement where T : WorldElement
 	{
 		public RefID target;
-		public RefID refID;
 
 		public ReferenceField(RefID target)
 		{
@@ -63,6 +62,11 @@ namespace KodEngine.KodEBase
 			}
 			return null;
 		}
+
+		public override void OnDestroy()
+		{
+			
+		}
 	}
 
 	public class RefTable
@@ -81,10 +85,15 @@ namespace KodEngine.KodEBase
 			currID++;
 		}
 
+		// Do not manually assign RefIDs above 1000. It will break stuff.
 		public RefID(ulong id)
 		{
-			if (id > 1000) { throw new System.ArgumentException("IDs 0 to 999 are the only reserved ids!"); }
 			this.id = id;
+			if (RefTable.RefIDDictionary.ContainsKey(this))
+			{
+				throw new System.ArgumentException("RefID is already taken!");
+			}
+			
 		}
 
 		public override string ToString()
