@@ -24,22 +24,23 @@ namespace KodEngine.Core
 
 		public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
 		{
-			JObject obj = JObject.Load(reader);
-			string type = (string)obj["$type"];
-			UnityEngine.Debug.Log(type);
-			Float3 position = new Float3((float)obj["position"]["x"], (float)obj["position"]["y"], (float)obj["position"]["z"]);
-			FloatQ rotation = new FloatQ((float)obj["rotation"]["x"], (float)obj["rotation"]["y"], (float)obj["rotation"]["z"], (float)obj["rotation"]["w"]);
-			Float3 scale = new Float3((float)obj["scale"]["x"], (float)obj["scale"]["y"], (float)obj["scale"]["z"]);
-			Slot s = new Slot((string)obj["name"], (string)obj["tag"], position, rotation, scale, null, (bool) obj["isActive"]);
+			return null;
+			//JObject obj = JObject.Load(reader);
+			//string type = (string)obj["$type"];
+			//if (type.Contains("KodEngine.Core.Slot"))
+			//{
 
-			UnityEngine.Debug.Log(existingValue);
+			//}
 
-			
-			foreach (Component c in s.components)
-			{
-				UnityEngine.Debug.Log(c.ToString());
-			}
-			return new Version(s.ToString());
+			//UnityEngine.Debug.Log(existingValue);
+
+
+			//foreach (RefID reference in s.components)
+			//{
+			//	Component c = (Component)reference.Resolve();
+			//	UnityEngine.Debug.Log(c.ToString());
+			//}
+			//return new Version(s.ToString());
 		}
 	}
 }

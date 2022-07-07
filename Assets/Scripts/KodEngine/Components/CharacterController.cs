@@ -225,13 +225,6 @@ namespace KodEngine.Component
 			Gizmos.DrawSphere(new Vector3(_controllerObject.transform.position.x, _controllerObject.transform.position.y - GroundedOffset, _controllerObject.transform.position.z), GroundedRadius);
 		}
 
-		public CharacterController(Slot owner) : base(owner)
-		{
-			OnAttach();
-		}
-
-		public CharacterController() { }
-
 		public override void OnAttach()
 		{
 			// Create player visual and collider
@@ -239,7 +232,8 @@ namespace KodEngine.Component
 			_controllerObject.name = "Character controller";
 
 			// Parent player object to the slot
-			_controllerObject.transform.SetParent(owner.gameObject.transform);
+			Slot ownerSlot = (Slot)owner.Resolve();
+			_controllerObject.transform.SetParent(ownerSlot.gameObject.transform);
 
 			// Create camera object and add camera component
 			_mainCamera = new GameObject("Camera");

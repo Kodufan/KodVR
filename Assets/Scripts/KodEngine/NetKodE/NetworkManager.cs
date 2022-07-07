@@ -2,14 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace KodEngine
+namespace KodEngine.NetKodE
 {
 	public delegate void Action(Unity.Netcode.NetworkManager.ConnectionApprovalRequest request, Unity.Netcode.NetworkManager.ConnectionApprovalResponse response);
 
 	public class NetworkManager : MonoBehaviour
 	{
-		public static event Action OnPlayerConnection;
-
 		// Janky solution to making sure the host binds connection events as well
 		public static ulong hostID;
 
@@ -24,6 +22,7 @@ namespace KodEngine
 			if (System.Text.ASCIIEncoding.Default.GetString(request.Payload) == "init")
 			{
 				response.Approved = true;
+				Debug.Log("Building host");
 				KodEngine.Core.WorldManager.currentWorld.BuildHostUser(user);
 				return;
 			}
@@ -62,8 +61,13 @@ namespace KodEngine
 		void OnGUI()
 		{
 			GUILayout.BeginArea(new Rect(10, 10, 300, 300));
+
+			if (!Unity.Netcode.NetworkManager.Singleton.IsHost || !Unity.Netcode.NetworkManager.Singleton.IsClient)
+			{
 				StartButtons();
-				StatusLabels();
+			}
+			
+			StatusLabels();
 
 
 			GUILayout.EndArea();
@@ -77,14 +81,6 @@ namespace KodEngine
 				Unity.Netcode.NetworkManager.Singleton.StartClient();
 				Debug.Log("Client started!");
 			}
-			if (GUILayout.Button("Host")) 
-			{ 
-				Unity.Netcode.NetworkManager.Singleton.StartHost();
-				Debug.Log("Host started!");
-				hostID = Unity.Netcode.NetworkManager.Singleton.LocalClient.ClientId;
-				Engine._inputHandler.PrimaryInteractAction += NetworkManager.Change;
-				Unity.Netcode.NetworkManager.Singleton.NetworkConfig.ConnectionData = System.Text.Encoding.ASCII.GetBytes("");
-			}
 		}
 
 		static void StatusLabels()
@@ -95,6 +91,15 @@ namespace KodEngine
 			GUILayout.Label("Transport: " +
 				Unity.Netcode.NetworkManager.Singleton.NetworkConfig.NetworkTransport.GetType().Name);
 			GUILayout.Label("Mode: " + mode);
+		}
+
+		public static void StartHost()
+		{
+			Unity.Netcode.NetworkManager.Singleton.StartHost();
+			Debug.Log("Host started!");
+			hostID = Unity.Netcode.NetworkManager.Singleton.LocalClient.ClientId;
+			Engine._inputHandler.PrimaryInteractAction += NetworkManager.Change;
+			Unity.Netcode.NetworkManager.Singleton.NetworkConfig.ConnectionData = System.Text.Encoding.ASCII.GetBytes("");
 		}
 	}
 }

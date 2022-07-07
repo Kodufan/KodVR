@@ -17,7 +17,8 @@ namespace KodEngine.Core
 		public override void OnAttach()
 		{
 			meshObject = new GameObject("Mesh Object");
-			meshObject.transform.parent = owner.gameObject.transform;
+			Slot ownerSlot = (Slot)owner.Resolve();
+			meshObject.transform.parent = ownerSlot.gameObject.transform;
 			meshFilter = meshObject.AddComponent<MeshFilter>();
 		}
 	}

@@ -15,7 +15,7 @@ namespace KodEngine.Core
 		public string userID;
 		public string machineID;
 		
-		public Slot userRoot { get; set; }
+		public RefID userRoot { get; set; }
 
 		public PlayerNetworkInstance networkInstance { get; set; }
 		public ulong unityNetworkID { get; set; }
@@ -40,7 +40,7 @@ namespace KodEngine.Core
 
 		public void Destroy()
 		{
-			userRoot?.Destroy();
+			((Slot)userRoot.Resolve())?.Destroy();
 		}
 
 		public void OnPlayerNetworkInstanceCreated(ulong target)

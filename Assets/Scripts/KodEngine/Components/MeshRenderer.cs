@@ -54,8 +54,9 @@ namespace KodEngine.Component
 		public override void OnAttach()
 		{
 			Engine.OnCommonUpdate += OnUpdate;
-			renderer = owner.gameObject.AddComponent<UnityEngine.MeshRenderer>();
-			meshFilter = owner.gameObject.AddComponent<UnityEngine.MeshFilter>();
+			Slot ownerSlot = (Slot)owner.Resolve();
+			renderer = ownerSlot.gameObject.AddComponent<UnityEngine.MeshRenderer>();
+			meshFilter = ownerSlot.gameObject.AddComponent<UnityEngine.MeshFilter>();
 
 			builtInMaterial = new BuiltInMaterial();
 			builtInMaterial.owner = owner;

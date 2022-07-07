@@ -24,20 +24,23 @@ namespace KodEngine.Component
 
 		public override void OnAttach()
 		{
-			ProceduralBoxMesh mesh = owner.AttachComponent<ProceduralBoxMesh>();
-			PBS_Metallic material = owner.AttachComponent<PBS_Metallic>();
-			MeshRenderer renderer = owner.AttachComponent<MeshRenderer>();
+			Slot ownerSlot = (Slot)owner.Resolve();
+			ProceduralBoxMesh mesh = ownerSlot.AttachComponent<ProceduralBoxMesh>();
+			PBS_Metallic material = ownerSlot.AttachComponent<PBS_Metallic>();
+			MeshRenderer renderer = ownerSlot.AttachComponent<MeshRenderer>();
 
 			renderer.mesh = mesh;
 			renderer.material = material;
 
-			User user = owner.TryGetUser();
+			User user = ownerSlot.TryGetUser();
 			user.networkInstance.changed += OnUpdate;
 		}
 		
 		public void OnUpdate(UnityEngine.Vector3 value)
 		{
-			owner.position.unityVector3 = value;
+			// This is bad dumb code that should be changed later.
+			Slot ownerSlot = (Slot)owner.Resolve();
+			ownerSlot.position.value.unityVector3 = value;
 		}
 
 		public override void OnUpdate()

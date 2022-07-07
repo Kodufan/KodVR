@@ -13,12 +13,11 @@ namespace KodEngine.Core
 
 	public class World
 	{
-		public Unity.Netcode.NetworkVariable<UnityEngine.Vector3> Position = new Unity.Netcode.NetworkVariable<UnityEngine.Vector3>();
-		public static Slot root;
+		
+		public static RefID root;
 		public string worldID;
 		public static User hostUser;
 		public static List<User> users;
-		public Dictionary<RefID, IWorldElement> RefIDDictionary = new Dictionary<RefID, IWorldElement>();
 
 		public void OnDisconnected(ulong uid)
 		{
@@ -26,7 +25,7 @@ namespace KodEngine.Core
 			{
 				if (user.unityNetworkID == uid)
 				{
-					user.userRoot.Destroy();
+					((Slot)user.userRoot.Resolve()).Destroy();
 					users.Remove(user);
 					break;
 				}
@@ -48,14 +47,18 @@ namespace KodEngine.Core
 		{
 			this.worldID = worldID;
 			// Create the world root
-			root = CreateSlot("Root");
+			Slot rootSlot = new Slot("Root");
+
+			// Preferably make a way to create dedicated reference IDs
+			rootSlot.refID.id = 1;
+			root = rootSlot.refID;
 
 			// Create user list
 			users = new List<User>();
 
 			UnityEngine.GameObject gameObject = new UnityEngine.GameObject(type.ToString());
 			gameObject.transform.parent = WorldManager.worldRoot.transform;
-			root.SetParent(gameObject);
+			rootSlot.SetParent(gameObject);
 
 			// Create the world
 			switch (type)
@@ -63,24 +66,22 @@ namespace KodEngine.Core
 				case WorldType.Localhome:
 
 					Slot cube = new Slot("Cube");
-					cube.SetParent(root);
+					cube.SetParent(rootSlot.refID);
 
-					cube.position = new Float3(1, 0, -.75f);
+					cube.SetPosition(new Float3(1, 0, -.75f));
 
 					Texture2D tex = cube.AttachComponent<Texture2D>();
-					tex.uri = new System.Uri("C:\\Users\\Jack Duvall\\Downloads\\hug.png");
+					tex.uri = new System.Uri(@"C:\Users\koduf\Downloads\unknown.png");
 
 					PBS_Metallic material = cube.AttachComponent<PBS_Metallic>();
 					material.texture = tex;
-
-					UnityEngine.Debug.Log(material.componentName);
 
 					ProceduralBoxMesh boxMesh = cube.AttachComponent<ProceduralBoxMesh>();
 					ProceduralSphereMesh sphereMesh = cube.AttachComponent<ProceduralSphereMesh>();
 					MeshRenderer renderer = cube.AttachComponent<MeshRenderer>();
 					renderer.material = material;
 
-					renderer.mesh = sphereMesh;
+					renderer.mesh = boxMesh;
 
 					material.albedo = new Color(1, 1, 1, 1);
 
@@ -90,15 +91,15 @@ namespace KodEngine.Core
 
 
 					Slot cube2 = new Slot("Cube2");
-					cube2.SetParent(root);
+					cube2.SetParent(rootSlot.refID);
+					
+					cube2.SetPosition(new Float3(1, 0, .75f));
 
-					cube2.position = new Float3(1, 0, .75f);
-
-					Texture2D tex2 = cube2.AttachComponent<Texture2D>();
-					tex2.uri = new System.Uri("C:\\Users\\Jack Duvall\\Downloads\\drag.png");
+					//Texture2D tex2 = cube2.AttachComponent<Texture2D>();
+					//tex2.uri = new System.Uri(@"C:\Users\koduf\Downloads\kindpng_92984.png");
 
 					PBS_Metallic material2 = cube2.AttachComponent<PBS_Metallic>();
-					material2.texture = tex2;
+					//material2.texture = tex2;
 
 					ProceduralBoxMesh boxMesh2 = cube2.AttachComponent<ProceduralBoxMesh>();
 					MeshRenderer renderer2 = cube2.AttachComponent<MeshRenderer>();
@@ -111,47 +112,42 @@ namespace KodEngine.Core
 					MeshCollider collider2 = cube2.AttachComponent<MeshCollider>();
 					collider2.mesh = boxMesh2;
 
-					root.AttachPlane(new UnityEngine.Color(1, 1, 0, 1));
-					root.AttachComponent<CharacterController>();
+					rootSlot.AttachPlane(new UnityEngine.Color(1, 1, 0, 1));
+					//rootSlot.AttachComponent<CharacterController>();
 					break;
 				case WorldType.Default:
-					root.AttachPlane(UnityEngine.Color.grey);
+					rootSlot.AttachPlane(UnityEngine.Color.grey);
 					break;
 				case WorldType.Space:
 					worldID = "1";
-					root.AttachPlane(UnityEngine.Color.black);
+					rootSlot.AttachPlane(UnityEngine.Color.black);
 					break;
 				case WorldType.Gridspace:
 					worldID = "2";
-					root.AttachPlane(UnityEngine.Color.white);
+					rootSlot.AttachPlane(UnityEngine.Color.white);
 					break;
 				case WorldType.Debug:
 					worldID = "3";
-					root.AttachPlane(UnityEngine.Color.blue);
+					rootSlot.AttachPlane(UnityEngine.Color.blue);
 					break;
 				case WorldType.Custom:
 					worldID = "4";
-					root.AttachPlane(UnityEngine.Color.red);
+					rootSlot.AttachPlane(UnityEngine.Color.red);
 					break;
 			}
 		}
 
-		public void Destroy()
+		public static void Destroy()
 		{
-			root.Destroy();
-		}
-
-		public Slot CreateSlot(string name)
-		{
-			return new Slot(name);
+			((Slot)root.Resolve()).Destroy();
 		}
 		
 		//world.AddUser("Username", "UserID", "MachineID", owningWorld, userRoot, networkInstance);
 		public User BuildUser(User user)
 		{
 			user.userName = "Client";
-			Slot userRoot = root.CreateChild();
-			user.userRoot = userRoot;
+			Slot userRoot = GetRoot().CreateChild();
+			user.userRoot = userRoot.refID;
 			userRoot.name = user.userName;
 			users.Add(user);
 
@@ -165,29 +161,37 @@ namespace KodEngine.Core
 		public User BuildHostUser(User user)
 		{
 			user.userName = "Host";
-			Slot userRoot = root.CreateChild();
+			Slot userRoot = GetRoot().CreateChild();
 			userRoot.name = user.userName;
-			user.userRoot = userRoot;
-			
+			user.userRoot = userRoot.refID;
+
+
+			userRoot.AttachComponent<CharacterController>();
 			users.Add(user);
 			return user;
 		}
 
 		public void ConstructVisual(User user)
 		{
-			user.userRoot.AttachComponent<PlayerVisual>();
+			((Slot)user.userRoot.Resolve()).AttachComponent<PlayerVisual>();
 		}
 	
 		public static void SerializeWorld()
 		{
 			string fileName = "Test.json";
-			string json = Newtonsoft.Json.JsonConvert.SerializeObject(root, Newtonsoft.Json.Formatting.None, new Newtonsoft.Json.JsonSerializerSettings()
+
+			string json = Newtonsoft.Json.JsonConvert.SerializeObject(RefTable.RefIDDictionary, Newtonsoft.Json.Formatting.None, new Newtonsoft.Json.JsonSerializerSettings()
 			{
 				TypeNameHandling = Newtonsoft.Json.TypeNameHandling.All,
 				TypeNameAssemblyFormatHandling = Newtonsoft.Json.TypeNameAssemblyFormatHandling.Simple
 			});
 			System.IO.File.WriteAllText(fileName, json);
 			byte[] jsonBytes = System.Text.Encoding.UTF8.GetBytes(json);
+		}
+
+		public static Slot GetRoot()
+		{
+			return (Slot)root.Resolve();
 		}
 	}
 }

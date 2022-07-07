@@ -1,15 +1,16 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using KodEngine.KodEBase;
 
 namespace KodEngine.Core
 {
-	public abstract class Component
+	public abstract class Component : WorldElement
 	{
 		// Owner is settable in order to allow attaching components. I do not like this solution,
 		// but I do not know how to avoid it
 		[Newtonsoft.Json.JsonIgnore]
-		public Slot owner { get; set; }
+		public RefID owner { get; set; }
 
 		public string componentName => "KodEngine." + GetType().Name;
 
@@ -18,7 +19,7 @@ namespace KodEngine.Core
 		public bool isEnabled { get; set; }
 		public int updateOrder { get; set; }
 
-		public Component(Slot owner)
+		public Component(RefID owner) : base()
 		{
 			this.owner = owner;
 		}
@@ -28,7 +29,6 @@ namespace KodEngine.Core
 		public abstract void OnAttach();
 		public abstract void OnUpdate();
 		public abstract void OnChange();
-		public abstract void OnDestroy();
 	}
 }
 

@@ -1,13 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using KodEngine;
+using KodEngine.Core;
 
 namespace KodEngine.Component
 {
 	public class ProceduralSphereMesh : Core.Mesh
 	{
-		public Mesh sphere { get; set; }
+		public UnityEngine.Mesh sphere { get; set; }
 
 		public override string helpText
 		{
@@ -25,7 +25,8 @@ namespace KodEngine.Component
 			base.OnAttach();
 			Engine.OnCommonUpdate += OnUpdate;
 
-			meshObject.transform.SetParent(owner.gameObject.transform);
+			Slot ownerSlot = (Slot)owner.Resolve();
+			meshObject.transform.SetParent(ownerSlot.gameObject.transform);
 
 			meshFilter.mesh = Resources.GetBuiltinResource<UnityEngine.Mesh>("Sphere.fbx");
 		}

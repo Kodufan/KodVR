@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using KodEngine.Core;
+using KodEngine.KodEBase;
 
 namespace KodEngine
 {
@@ -20,7 +21,6 @@ namespace KodEngine
 		{
 			_unityInputActions = new UnityInputHandler();
 			builtInMaterial = new Core.BuiltInMaterial();
-
 		}
 
 		// Start is called before the first frame update
@@ -37,6 +37,8 @@ namespace KodEngine
 
 			// This marks that the engine has completely initialized and will begin to call Unity methods to finish setup.
 			EngineInit();
+
+			KodEngine.NetKodE.NetworkManager.StartHost();
 		}
 
 		// Update is called once per frame
@@ -62,11 +64,13 @@ namespace KodEngine
 
 		public void Debug2()
 		{
+			UnityEngine.Debug.Log("Loading world...");
 			WorldManager.LoadWorld(@"C:\Users\koduf\Documents\GitHub\KodVR\Test.json");
 		}
 		
 		public void Debug()
 		{
+			UnityEngine.Debug.Log("Serializing world...");
 			World.SerializeWorld();
 			Debug2();
 		}

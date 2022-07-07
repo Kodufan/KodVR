@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using KodEngine.KodEBase;
 
 namespace KodEngine.Core
 {
@@ -41,10 +42,19 @@ namespace KodEngine.Core
 
 		public static void LoadWorld(string filePath)
 		{
-			World.root.Destroy();
-			Slot deserializedProduct = Newtonsoft.Json.JsonConvert.DeserializeObject<Slot>(System.IO.File.ReadAllText(filePath), new JSONReader());
-			// { TypeNameHandling = Newtonsoft.Json.TypeNameHandling.All }
-			World.root = deserializedProduct;
+			World.Destroy();
+			KodEBase.RefID.ResetID();
+
+			foreach (KeyValuePair<RefID, WorldElement> e in RefTable.RefIDDictionary)
+			{
+				UnityEngine.Debug.Log(e.Key + ": " + e.Value);
+			}
+			Dictionary<RefID, WorldElement> refTable = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<RefID, WorldElement>>(System.IO.File.ReadAllText(filePath), new Newtonsoft.Json.JsonSerializerSettings()
+			{
+				TypeNameHandling = Newtonsoft.Json.TypeNameHandling.All,
+				TypeNameAssemblyFormatHandling = Newtonsoft.Json.TypeNameAssemblyFormatHandling.Simple
+			});
+			//World.root = deserializedProduct.refID;
 
 			string fileName = "Test2.json";
 			string json = Newtonsoft.Json.JsonConvert.SerializeObject(World.root, Newtonsoft.Json.Formatting.None, new Newtonsoft.Json.JsonSerializerSettings()

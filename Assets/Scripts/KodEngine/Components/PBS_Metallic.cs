@@ -76,7 +76,6 @@ namespace KodEngine.Component
 
 		public override void OnChange()
 		{
-			//UnityEngine.Debug.Log(albedo.unityColor);
 			material.color = albedo.unityColor;
 
 			if (texture != null)

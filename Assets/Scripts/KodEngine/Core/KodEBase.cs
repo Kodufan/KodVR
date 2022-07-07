@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
+using KodEngine.Core;
 
 
 namespace KodEngine.KodEBase
@@ -12,9 +13,66 @@ namespace KodEngine.KodEBase
 		public RefID refID;
 	}
 
+	public class ValueField<T> : WorldElement where T : IValue
+	{
+		public T value;
+
+		public ValueField(T value) : base()
+		{
+
+			if (value == null)
+			{
+				this.value = (T)System.Activator.CreateInstance(typeof(T));
+			} else
+			{
+				this.value = value;
+			}
+		}
+
+		public override void OnDestroy()
+		{
+
+		}
+	}
+
+	public class ReferenceField<T> where T : WorldElement
+	{
+		public RefID target;
+		public RefID refID;
+
+		public ReferenceField(RefID target)
+		{
+			System.Type refIDType = target?.ResolveType();
+			this.refID = new RefID();
+
+			if (refIDType != typeof(T) && refIDType != null)
+			{
+				Debug.LogError("ReferenceField: Target is not of type " + typeof(T).Name);
+			}
+			else
+			{
+				this.target = target;
+			}
+		}
+
+		public T Resolve()
+		{
+			if (target != null && RefTable.RefIDDictionary.ContainsKey(target))
+			{
+				return (T)target.Resolve();
+			}
+			return null;
+		}
+	}
+
+	public class RefTable
+	{
+		public static Dictionary<RefID, WorldElement> RefIDDictionary = new Dictionary<RefID, WorldElement>();
+	}
+	
 	public class RefID
 	{
-		public static ulong currID;
+		private static ulong currID = 1000;
 		public ulong id;
 
 		public RefID()
@@ -22,8 +80,49 @@ namespace KodEngine.KodEBase
 			this.id = currID;
 			currID++;
 		}
+
+		public RefID(ulong id)
+		{
+			if (id > 1000) { throw new System.ArgumentException("IDs 0 to 999 are the only reserved ids!"); }
+			this.id = id;
+		}
+
+		public override string ToString()
+		{
+			return id.ToString();
+		}
+
+		public WorldElement Resolve()
+		{
+			if (RefTable.RefIDDictionary.TryGetValue(this, out WorldElement value))
+			{
+				return value;
+			}
+			return null;
+		}
+
+		public System.Type ResolveType()
+		{
+			if (RefTable.RefIDDictionary.TryGetValue(this, out WorldElement value))
+			{
+				return value.GetType();
+			}
+			return null;
+		}
+
+		public static void ResetID()
+		{
+			currID = 1000;
+		}
 	}
-	public class Color
+
+	public interface IValue
+	{
+		public IValue GetValue();
+		public void SetValue(IValue value);
+	}
+
+	public class Color : IValue
 	{
 		private float _r;
 		public float r
@@ -104,9 +203,27 @@ namespace KodEngine.KodEBase
 		{
 			return unityColor.ToString();
 		}
+
+		public IValue GetValue()
+		{
+			return this;
+		}
+
+		public void SetValue(IValue value)
+		{
+			if (value.GetType() != typeof(Color))
+			{
+				throw new System.Exception("Cannot set value to Color from " + value.GetType());
+			}
+
+			Color color = (Color)value;
+			r = color.r;
+			g = color.g;
+			b = color.b;
+		}
 	}
 
-	public class Float3
+	public class Float3 : IValue
 	{
 		private float _x;
 		public float x
@@ -198,9 +315,27 @@ namespace KodEngine.KodEBase
 		{
 			return unityVector3.ToString();
 		}
+
+		public IValue GetValue()
+		{
+			return this;
+		}
+
+		public void SetValue(IValue value)
+		{
+			if (value.GetType() != typeof(Float3))
+			{
+				throw new System.Exception("Cannot set value to Float3 from " + value.GetType());
+			}
+
+			Float3 float3 = (Float3)value;
+			x = float3.x;
+			y = float3.y;
+			z = float3.z;
+		}
 	}
 
-	public class FloatQ
+	public class FloatQ : IValue
 	{
 		private float _x;
 		public float x
@@ -299,6 +434,25 @@ namespace KodEngine.KodEBase
 		public override string ToString()
 		{
 			return unityQuaternion.ToString();
+		}
+
+		public IValue GetValue()
+		{
+			return this;
+		}
+
+		public void SetValue(IValue value)
+		{
+			if (value.GetType() != typeof(FloatQ))
+			{
+				throw new System.Exception("Cannot set value to FloatQ from " + value.GetType());
+			}
+
+			FloatQ floatQ = (FloatQ)value;
+			x = floatQ.x;
+			y = floatQ.y;
+			z = floatQ.z;
+			w = floatQ.w;
 		}
 	}
 }

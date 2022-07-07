@@ -25,7 +25,6 @@ public class PlayerNetworkInstance : NetworkBehaviour
     {
 		if (IsOwner)
 		{
-			string name = "test";
 			manager = NetworkManager.Singleton.CustomMessagingManager;
 			//manager.RegisterNamedMessageHandler(name, OnRecieveMessage);
 			manager.OnUnnamedMessage += OnRecieveMessage;

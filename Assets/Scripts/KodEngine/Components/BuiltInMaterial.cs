@@ -37,6 +37,7 @@ namespace KodEngine.Component
 
 		public override void OnDestroy()
 		{
+			UnityEngine.Debug.Log("Destroy was called");
 		}
 
 		public override void OnUpdate()

@@ -39,7 +39,8 @@ namespace KodEngine.Component
 		public override void OnAttach()
 		{
 			Engine.OnCommonUpdate += OnUpdate;
-			collider = owner.gameObject.AddComponent<UnityEngine.MeshCollider>();
+			Slot ownerSlot = (Slot) owner.Resolve();
+			collider = ownerSlot.gameObject.AddComponent<UnityEngine.MeshCollider>();
 		}
 
 
