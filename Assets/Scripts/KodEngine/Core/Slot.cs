@@ -13,17 +13,12 @@ namespace KodEngine.Core
 		private int orderOffset;
 
 		public ValueField<Float3> position;
-
 		public ValueField<FloatQ> rotation;
-
 		public ValueField<Float3> scale;
-
 		public ReferenceField<Slot> parent;
-
 		public List<RefID> children;
 		public List<RefID> components;
-
-		public bool isActive;
+		public ValueField<Bool> isActive;
 
 		[Newtonsoft.Json.JsonIgnore]
 		public UnityEngine.GameObject gameObject;
@@ -32,15 +27,19 @@ namespace KodEngine.Core
 
 		// Fix constructors so that slots can be created anywhere in a heirarchy and also any session
 		// Also force slots to be placed in sessions
-		public Slot() : this("", "", Float3.zero, FloatQ.identity, Float3.one, null, true)
+		public Slot() : this("", "", Float3.zero, FloatQ.identity, Float3.one, null, new Bool(true))
+		{
+		}
+		
+		public Slot(string name) : this(name, "", Float3.zero, FloatQ.identity, Float3.one, null, new Bool(true))
 		{
 		}
 
-		public Slot(string name) : this(name, "", Float3.zero, FloatQ.identity, Float3.one, null, true)
+		public Slot(string name, string tag, Float3 position, FloatQ rotation, Float3 scale, Bool isActive) : this(name, tag, position, rotation, scale, null, isActive)
 		{
 		}
 
-		public Slot(string name, string tag, Float3 position, FloatQ rotation, Float3 scale, RefID parent, bool isActive) : base()
+		public Slot(string name, string tag, Float3 position, FloatQ rotation, Float3 scale, RefID parent, Bool isActive) : base()
 		{
 			// Must be created first for pos/rot/scale
 			this.gameObject = new UnityEngine.GameObject(name);
@@ -54,7 +53,7 @@ namespace KodEngine.Core
 			this.parent = new ReferenceField<Slot>(parent);
 			this.children = new List<RefID>();
 			this.components = new List<RefID>();
-			this.isActive = true;
+			this.isActive = new ValueField<Bool>(isActive);
 
 			if (this.parent.target != null)
 			{
@@ -64,14 +63,14 @@ namespace KodEngine.Core
 
 		public void SetParent(RefID parent)
 		{
-			if (parent != null && this.parent.target != parent)
+			if (RefTable.RefIDDictionary.ContainsKey(parent) && parent.ResolveType() == typeof(Slot) && this.parent.target != parent)
 			{
 				Slot parentSlot = (Slot)parent.Resolve();
 
 				if (this.parent.target != null)
 				{
 					List<RefID> children = ((Slot)this.parent.target.Resolve()).children;
-					children.RemoveAt(children.IndexOf(this.refID));
+					children.Remove(this.refID);
 				}
 
 				this.parent.target = parent;
@@ -84,16 +83,16 @@ namespace KodEngine.Core
 		{
 			if (parent != null)
 			{
-				this.parent = null;
+				this.parent.target = null;
 				this.gameObject.transform.SetParent(parent.gameObject.transform);
 			}
 		}
 
 		public Slot CreateChild()
 		{
-			Slot newSlot =  new Slot(this.name + " - Child", "", Float3.zero, FloatQ.identity, Float3.one, this.refID, true);
+			Slot newSlot =  new Slot(this.name + " - Child", "", Float3.zero, FloatQ.identity, Float3.one, this.refID, new Bool(true));
 			newSlot.SetParent(this.refID);
-			children.Add(newSlot.refID);
+			this.children.Add(newSlot.refID);
 			return newSlot;
 		}
 		
@@ -163,7 +162,7 @@ namespace KodEngine.Core
 			tex3.uri = new System.Uri(@"C:\Users\koduf\Downloads\white_cliff_top_8k.png");
 
 			PBS_Metallic material3 = cube3.AttachComponent<PBS_Metallic>();
-			material3.texture = tex3;
+			material3.texture.refID = tex3.refID;
 
 			ProceduralSphereMesh sphereMesh3 = cube3.AttachComponent<ProceduralSphereMesh>();
 			ProceduralBoxMesh boxMesh3 = cube3.AttachComponent<ProceduralBoxMesh>();
@@ -221,19 +220,27 @@ namespace KodEngine.Core
 
 		public override void OnDestroy()
 		{
+			// May be better to find a way to bind valuefields to the thing they're attached to and have them call their own destroy with an action.
 			position.Destroy();
 			rotation.Destroy();
 			scale.Destroy();
+			parent.Destroy();
+			isActive.Destroy();
 
 			UnityEngine.Object.Destroy(gameObject);
 			onDestroy?.Invoke();
 
-			for (int i = 0; i < children.Count; i++)
+			while (children.Count > 0)
 			{
-				Slot child = (Slot)children[i].Resolve();
-				child.Destroy();
-				children.RemoveAt(i);
-				i--;
+				Slot child = (Slot)children[0].Resolve();
+				if (child != null)
+				{
+					child.Destroy();
+				} else
+				{
+					UnityEngine.Debug.Log(this.refID + ", " + children[0]);
+				}
+				children.RemoveAt(0);
 			}
 		}
 	}

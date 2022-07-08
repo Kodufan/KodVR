@@ -37,21 +37,31 @@ namespace KodEngine.KodEBase
 
 	public class ReferenceField<T> : WorldElement where T : WorldElement
 	{
-		public RefID target;
-
-		public ReferenceField(RefID target)
+		private RefID _target;
+		public RefID target
 		{
-			System.Type refIDType = target?.ResolveType();
-			this.refID = new RefID();
+			get
+			{
+				return _target;
+			}
+			set
+			{
+				System.Type refIDType = target?.ResolveType();
+				if (refIDType != typeof(T) && refIDType != null)
+				{
+					Debug.LogError("ReferenceField: Target is not of type " + typeof(T).Name);
+				}
+			}
+		}
 
-			if (refIDType != typeof(T) && refIDType != null)
-			{
-				Debug.LogError("ReferenceField: Target is not of type " + typeof(T).Name);
-			}
-			else
-			{
-				this.target = target;
-			}
+		public ReferenceField(RefID target) : this()
+		{
+			this.target = target;
+		}
+
+		public ReferenceField()
+		{
+			this.refID = new RefID();
 		}
 
 		public T Resolve()
@@ -74,9 +84,12 @@ namespace KodEngine.KodEBase
 		public static Dictionary<RefID, WorldElement> RefIDDictionary = new Dictionary<RefID, WorldElement>();
 	}
 	
+
+	// Create the ability to "rebalance" world IDs, as currently, it may be possible to run out of IDs by IDs not being flushed when deleted.
 	public class RefID
 	{
-		private static ulong currID = 1000;
+		public static readonly ulong RESERVED_IDS = 1000;
+		private static ulong currID = RESERVED_IDS;
 		public ulong id;
 
 		public RefID()
@@ -85,7 +98,7 @@ namespace KodEngine.KodEBase
 			currID++;
 		}
 
-		// Do not manually assign RefIDs above 1000. It will break stuff.
+		// Do not manually assign RefIDs above RESERVED_IDS. It will break stuff.
 		public RefID(ulong id)
 		{
 			this.id = id;
@@ -96,9 +109,14 @@ namespace KodEngine.KodEBase
 			
 		}
 
+		public static explicit operator RefID(string x)
+		{
+			return new RefID(ulong.Parse(x.Substring(2)));
+		}
+
 		public override string ToString()
 		{
-			return id.ToString();
+			return "ID" + id.ToString();
 		}
 
 		public WorldElement Resolve()
@@ -122,6 +140,11 @@ namespace KodEngine.KodEBase
 		public static void ResetID()
 		{
 			currID = 1000;
+		}
+
+		public static void DecrementCurrentID()
+		{
+			currID--;
 		}
 	}
 
@@ -462,6 +485,28 @@ namespace KodEngine.KodEBase
 			y = floatQ.y;
 			z = floatQ.z;
 			w = floatQ.w;
+		}
+	}
+
+	public class Bool : IValue
+	{
+		public bool value;
+
+		public IValue GetValue()
+		{
+			return this;
+		}
+
+		public Bool() : this(true) { }
+
+		public Bool(bool value) { this.value = value; }
+
+		public void SetValue(IValue value)
+		{
+			if (value.GetType() != typeof(Bool))
+			{
+				throw new System.Exception("Cannot set value to Bool from " + value.GetType());
+			}
 		}
 	}
 }

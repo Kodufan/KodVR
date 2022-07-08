@@ -12,8 +12,6 @@ namespace KodEngine.Core
 		[Newtonsoft.Json.JsonIgnore]
 		public RefID owner { get; set; }
 
-		public string componentName => "KodEngine." + GetType().Name;
-
 		[Newtonsoft.Json.JsonIgnore]
 		public abstract string helpText { get; set; }
 		public bool isEnabled { get; set; }

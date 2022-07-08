@@ -74,7 +74,7 @@ namespace KodEngine.Core
 					tex.uri = new System.Uri(@"C:\Users\koduf\Downloads\unknown.png");
 
 					PBS_Metallic material = cube.AttachComponent<PBS_Metallic>();
-					material.texture = tex;
+					material.texture.refID = tex.refID;
 
 					ProceduralBoxMesh boxMesh = cube.AttachComponent<ProceduralBoxMesh>();
 					ProceduralSphereMesh sphereMesh = cube.AttachComponent<ProceduralSphereMesh>();
@@ -99,7 +99,7 @@ namespace KodEngine.Core
 					tex2.uri = new System.Uri(@"C:\Users\koduf\Downloads\kindpng_92984.png");
 
 					PBS_Metallic material2 = cube2.AttachComponent<PBS_Metallic>();
-					material2.texture = tex2;
+					material2.texture.refID = tex2.refID;
 
 					ProceduralBoxMesh boxMesh2 = cube2.AttachComponent<ProceduralBoxMesh>();
 					MeshRenderer renderer2 = cube2.AttachComponent<MeshRenderer>();
@@ -180,9 +180,9 @@ namespace KodEngine.Core
 		{
 			string fileName = "Test.json";
 
-			List<WorldElement> worldElements = new List<WorldElement>(RefTable.RefIDDictionary.Values);
+			//List<WorldElement> worldElements = new List<WorldElement>(RefTable.RefIDDictionary.Values);
 
-			string json = Newtonsoft.Json.JsonConvert.SerializeObject(worldElements, Newtonsoft.Json.Formatting.None, new Newtonsoft.Json.JsonSerializerSettings()
+			string json = Newtonsoft.Json.JsonConvert.SerializeObject(RefTable.RefIDDictionary, Newtonsoft.Json.Formatting.None, new Newtonsoft.Json.JsonSerializerSettings()
 			{
 				TypeNameHandling = Newtonsoft.Json.TypeNameHandling.All,
 				TypeNameAssemblyFormatHandling = Newtonsoft.Json.TypeNameAssemblyFormatHandling.Simple

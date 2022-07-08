@@ -53,16 +53,19 @@ namespace KodEngine.Core
 			string json = System.IO.File.ReadAllText(filePath);
 			
 
-			Dictionary<RefID, WorldElement> refTable = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<RefID, WorldElement>>(json, new JSONReader());
-			//World.root = deserializedProduct.refID;
-
-			string fileName = "Test2.json";
-			json = Newtonsoft.Json.JsonConvert.SerializeObject(World.root, Newtonsoft.Json.Formatting.None, new Newtonsoft.Json.JsonSerializerSettings()
-			{
+			Dictionary<RefID, WorldElement> refTable = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<RefID, WorldElement>>(json, new Newtonsoft.Json.JsonSerializerSettings() {
 				TypeNameHandling = Newtonsoft.Json.TypeNameHandling.Auto,
 				TypeNameAssemblyFormatHandling = Newtonsoft.Json.TypeNameAssemblyFormatHandling.Simple
 			});
-			System.IO.File.WriteAllText(fileName, json);
+			//World.root = deserializedProduct.refID;
+
+			//string fileName = "Test2.json";
+			//json = Newtonsoft.Json.JsonConvert.SerializeObject(World.root, Newtonsoft.Json.Formatting.None, new Newtonsoft.Json.JsonSerializerSettings()
+			//{
+			//TypeNameHandling = Newtonsoft.Json.TypeNameHandling.Auto,
+			//	TypeNameAssemblyFormatHandling = Newtonsoft.Json.TypeNameAssemblyFormatHandling.Simple
+			//});
+			//System.IO.File.WriteAllText(fileName, json);
 		}
 
 		// Will eventually need to duplicate a Unity Netcode manager and set it as a client

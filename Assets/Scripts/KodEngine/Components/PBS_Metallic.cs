@@ -1,4 +1,4 @@
-using System.Collections;
+using System.Reflection;
 using System.Collections.Generic;
 //using UnityEngine;
 using KodEngine.Component;
@@ -12,21 +12,8 @@ namespace KodEngine.Component
 
 		[Newtonsoft.Json.JsonIgnore]
 		public UnityEngine.Material material { get; set; }
-		
-		private Texture2D _texture;
 
-		public Texture2D texture
-		{
-			get
-			{
-				return _texture;
-			}
-			set
-			{
-				_texture = value;
-				OnChange();
-			}
-		}
+		public ReferenceField<Texture2D> texture;
 
 		private Color _albedo = new Color(1, 1, 1, 1);
 
@@ -56,6 +43,7 @@ namespace KodEngine.Component
 
 		public override void OnAttach()
 		{
+			texture = new ReferenceField<Texture2D>();
 			Engine.OnCommonUpdate += OnUpdate;
 			UnityEngine.Shader shader = UnityEngine.Resources.Load<UnityEngine.Shader>("Shaders/Root_Folder/Standard");
 			material = new UnityEngine.Material(shader);
@@ -76,9 +64,11 @@ namespace KodEngine.Component
 		{
 			material.color = albedo.unityColor;
 
-			if (texture != null)
+			if (texture.refID.Resolve() != null)
 			{
-				material.mainTexture = texture.texture;
+				Texture2D texture2D = (Texture2D)texture.refID.Resolve();
+				PropertyInfo textureProperty = typeof(Texture2D).GetProperty("texture");
+				material.mainTexture = (UnityEngine.Texture2D)textureProperty.GetValue(texture2D);
 			}
 		}
 	}
