@@ -68,6 +68,14 @@ namespace KodEngine.Component
 
 		private const float _threshold = 0.01f;
 
+		public CharacterController(KodEBase.RefID owner) : base(owner)
+		{
+		}
+
+		[Newtonsoft.Json.JsonConstructor]
+		public CharacterController(KodEBase.RefID refID, bool isEnabled, int updateOrder) : base(refID, isEnabled, updateOrder)
+		{
+		}
 
 		public override string helpText
 		{

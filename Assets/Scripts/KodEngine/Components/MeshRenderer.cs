@@ -2,42 +2,28 @@ using System.Collections;
 using System.Collections.Generic;
 //using UnityEngine;
 using KodEngine.Core;
-using KodEngine.Component;
+using KodEngine.KodEBase;
+using System.Reflection;
 
 namespace KodEngine.Component
 {
 	public class MeshRenderer : Core.Component
 	{
-		private Mesh _mesh;
-		public Mesh mesh
-		{
-			get
-			{
-				return _mesh;
-			}
-			set
-			{
-				_mesh = value;
-				OnChange();
-			}
-		}
-
-		private PBS_Metallic _material;
-		public PBS_Metallic material
-		{
-			get
-			{
-				return _material;
-			}
-			set
-			{
-				_material = value;
-				OnChange();
-			}
-		}
+		public ReferenceField<Mesh> mesh; 
+		public ReferenceField<PBS_Metallic> material;
+		
 		public Core.BuiltInMaterial builtInMaterial;
 		private UnityEngine.MeshRenderer renderer;
 		private UnityEngine.MeshFilter meshFilter;
+
+		public MeshRenderer(RefID owner) : base(owner)
+		{
+		}
+
+		[Newtonsoft.Json.JsonConstructor]
+		public MeshRenderer(RefID refID, bool isEnabled, int updateOrder) : base(refID, isEnabled, updateOrder)
+		{
+		}
 
 		public override string helpText
 		{
@@ -53,6 +39,8 @@ namespace KodEngine.Component
 
 		public override void OnAttach()
 		{
+			mesh = new ReferenceField<Mesh>();
+			material = new ReferenceField<PBS_Metallic>();
 			Engine.OnCommonUpdate += OnUpdate;
 			Slot ownerSlot = (Slot)owner.Resolve();
 			renderer = ownerSlot.gameObject.AddComponent<UnityEngine.MeshRenderer>();
@@ -61,27 +49,33 @@ namespace KodEngine.Component
 
 		public override void OnDestroy()
 		{
+			mesh.Destroy();
+			material.Destroy();
 		}
 
 		public override void OnUpdate()
 		{
-			if (renderer != null && material != null)
-			{
-				renderer.material = material.material;
-				//Debug.Log(material.material);
-			}
 		}
 
 		public override void OnChange()
 		{
-			if (mesh != null)
-			{
-				meshFilter.mesh = mesh.meshObject.GetComponent<UnityEngine.MeshFilter>().mesh;
-			}
+		}
 
-			if (material == null)
+		public void SetMesh(RefID refID)
+		{
+			if (refID.ResolveType().IsSubclassOf(typeof(Mesh)))
 			{
-				renderer.material = Engine.builtInMaterial.material;
+				Mesh mesh = (Mesh)refID.Resolve();
+				meshFilter.mesh = mesh.meshFilter.mesh;
+			}
+		}
+
+		public void SetMaterial(RefID refID)
+		{
+			if (refID.ResolveType() == typeof(PBS_Metallic))
+			{
+				PBS_Metallic material = (PBS_Metallic)refID.Resolve();
+				renderer.material = material.material;
 			}
 		}
 	}

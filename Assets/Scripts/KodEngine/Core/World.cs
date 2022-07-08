@@ -18,6 +18,7 @@ namespace KodEngine.Core
 		public string worldID;
 		public static User hostUser;
 		public static List<User> users;
+		public static UnityEngine.GameObject worldObject;
 
 		public void OnDisconnected(ulong uid)
 		{
@@ -56,9 +57,9 @@ namespace KodEngine.Core
 			// Create user list
 			users = new List<User>();
 
-			UnityEngine.GameObject gameObject = new UnityEngine.GameObject(type.ToString());
-			gameObject.transform.parent = WorldManager.worldRoot.transform;
-			rootSlot.SetParent(gameObject);
+			worldObject = new UnityEngine.GameObject(type.ToString());
+			worldObject.transform.parent = WorldManager.worldRoot.transform;
+			rootSlot.SetParent(worldObject);
 
 			// Create the world
 			switch (type)
@@ -74,19 +75,18 @@ namespace KodEngine.Core
 					tex.uri = new System.Uri(@"C:\Users\koduf\Downloads\unknown.png");
 
 					PBS_Metallic material = cube.AttachComponent<PBS_Metallic>();
-					material.texture.refID = tex.refID;
+					material.SetTexture(tex.refID);
 
 					ProceduralBoxMesh boxMesh = cube.AttachComponent<ProceduralBoxMesh>();
 					ProceduralSphereMesh sphereMesh = cube.AttachComponent<ProceduralSphereMesh>();
 					MeshRenderer renderer = cube.AttachComponent<MeshRenderer>();
-					renderer.material = material;
+					renderer.SetMaterial(material.refID);
+					renderer.SetMesh(boxMesh.refID);
 
-					renderer.mesh = boxMesh;
-
-					material.albedo = new Color(1, 1, 1, 1);
+					material.SetColor(new Color(1, 1, 1, 1));
 
 					MeshCollider collider = cube.AttachComponent<MeshCollider>();
-					collider.mesh = boxMesh;
+					collider.SetMesh(boxMesh.refID);
 
 
 
@@ -99,21 +99,19 @@ namespace KodEngine.Core
 					tex2.uri = new System.Uri(@"C:\Users\koduf\Downloads\kindpng_92984.png");
 
 					PBS_Metallic material2 = cube2.AttachComponent<PBS_Metallic>();
-					material2.texture.refID = tex2.refID;
+					material2.SetTexture(tex2.refID);
 
 					ProceduralBoxMesh boxMesh2 = cube2.AttachComponent<ProceduralBoxMesh>();
 					MeshRenderer renderer2 = cube2.AttachComponent<MeshRenderer>();
-					renderer2.material = material2;
+					renderer2.SetMaterial(material2.refID);
+					renderer2.SetMesh(boxMesh2.refID);
 
-					renderer2.mesh = boxMesh2;
-
-					material2.albedo = new Color(1, 1, 1, 1);
+					material2.SetColor(new Color(1, 1, 1, 1));
 
 					MeshCollider collider2 = cube2.AttachComponent<MeshCollider>();
-					collider2.mesh = boxMesh2;
+					collider2.SetMesh(boxMesh2.refID);
 
 					rootSlot.AttachPlane(new UnityEngine.Color(1, 1, 0, 1));
-					//rootSlot.AttachComponent<CharacterController>();
 					break;
 				case WorldType.Default:
 					rootSlot.AttachPlane(UnityEngine.Color.grey);
@@ -132,13 +130,28 @@ namespace KodEngine.Core
 					break;
 				case WorldType.Custom:
 					worldID = "4";
-					rootSlot.AttachPlane(UnityEngine.Color.red);
 					break;
 			}
 		}
 
+		public World(Slot rootSlot)
+		{
+			this.worldID = "Loaded world";
+
+			// Preferably make a way to create dedicated reference IDs
+			root = rootSlot.refID;
+			
+			// Create user list
+			users = new List<User>();
+
+			UnityEngine.GameObject gameObject = new UnityEngine.GameObject(worldID);
+			gameObject.transform.parent = WorldManager.worldRoot.transform;
+			rootSlot.SetParent(gameObject);
+		}
+
 		public static void Destroy()
 		{
+			UnityEngine.GameObject.Destroy(worldObject);
 			((Slot)root.Resolve()).Destroy();
 		}
 		
@@ -152,9 +165,6 @@ namespace KodEngine.Core
 			users.Add(user);
 
 			User.userInitialized += ConstructVisual;
-
-
-
 			return user;
 		}
 
@@ -164,7 +174,6 @@ namespace KodEngine.Core
 			Slot userRoot = GetRoot().CreateChild();
 			userRoot.name = user.userName;
 			user.userRoot = userRoot.refID;
-
 
 			userRoot.AttachComponent<CharacterController>();
 			users.Add(user);

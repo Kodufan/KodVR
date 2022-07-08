@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using KodEngine;
+using KodEngine.KodEBase;
 
 namespace KodEngine.Component
 {
@@ -37,6 +38,15 @@ namespace KodEngine.Component
 		// Incorperate OnChanged functionality into setter
 		[Newtonsoft.Json.JsonIgnore]
 		public UnityEngine.Texture2D texture { get; set; }
+
+		public Texture2D(RefID owner) : base(owner)
+		{
+		}
+
+		[Newtonsoft.Json.JsonConstructor]
+		public Texture2D(RefID refID, bool isEnabled, int updateOrder) : base(refID, isEnabled, updateOrder)
+		{
+		}
 
 		public override void OnAttach()
 		{

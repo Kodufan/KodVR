@@ -16,10 +16,9 @@ namespace KodEngine.KodEBase
 	public class ValueField<T> : WorldElement where T : IValue
 	{
 		public T value;
-
+		
 		public ValueField(T value) : base()
 		{
-
 			if (value == null)
 			{
 				this.value = (T)System.Activator.CreateInstance(typeof(T));
@@ -51,6 +50,7 @@ namespace KodEngine.KodEBase
 				{
 					Debug.LogError("ReferenceField: Target is not of type " + typeof(T).Name);
 				}
+				_target = value;
 			}
 		}
 
@@ -59,9 +59,9 @@ namespace KodEngine.KodEBase
 			this.target = target;
 		}
 
-		public ReferenceField()
+		public ReferenceField() : base()
 		{
-			this.refID = new RefID();
+			
 		}
 
 		public T Resolve()
@@ -99,6 +99,7 @@ namespace KodEngine.KodEBase
 		}
 
 		// Do not manually assign RefIDs above RESERVED_IDS. It will break stuff.
+		[Newtonsoft.Json.JsonConstructor]
 		public RefID(ulong id)
 		{
 			this.id = id;
@@ -106,7 +107,12 @@ namespace KodEngine.KodEBase
 			{
 				throw new System.ArgumentException("RefID is already taken!");
 			}
-			
+		}
+
+		// This is hilariously dumb and stupid. Only used for getting dictionary values
+		public RefID(ulong id, bool doesntMatter)
+		{
+			this.id = id;
 		}
 
 		public static explicit operator RefID(string x)

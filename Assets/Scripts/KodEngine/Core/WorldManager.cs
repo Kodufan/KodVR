@@ -5,6 +5,8 @@ using KodEngine.KodEBase;
 
 namespace KodEngine.Core
 {
+	public delegate void OnWorldLoaded();
+
 	public class WorldManager
 	{
 		// List of worlds
@@ -13,11 +15,12 @@ namespace KodEngine.Core
 		InputHandler _input = new InputHandler(new UnityInputHandler());
 		public static int worldID;
 
+		public static event OnWorldLoaded onWorldLoaded;
+
 		public WorldManager(GameObject gameObject)
 		{
 			worldRoot = new GameObject("World root");
 			worldRoot.transform.parent = gameObject.transform;
-			//_input.ToggleSessionEvent += ToggleSession;
 		}
 
 		public static void CreateLocalHome()
@@ -44,28 +47,73 @@ namespace KodEngine.Core
 		{
 			World.Destroy();
 			KodEBase.RefID.ResetID();
-			
-			foreach (KeyValuePair<RefID, WorldElement> e in RefTable.RefIDDictionary)
+
+			if (KodEBase.RefTable.RefIDDictionary.Count != 0)
 			{
-				UnityEngine.Debug.Log(e.Key + ": " + e.Value);
+				UnityEngine.Debug.LogError("World was not fully cleaned up!");
 			}
 
 			string json = System.IO.File.ReadAllText(filePath);
 			
 
 			Dictionary<RefID, WorldElement> refTable = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<RefID, WorldElement>>(json, new Newtonsoft.Json.JsonSerializerSettings() {
-				TypeNameHandling = Newtonsoft.Json.TypeNameHandling.Auto,
+				TypeNameHandling = Newtonsoft.Json.TypeNameHandling.All,
 				TypeNameAssemblyFormatHandling = Newtonsoft.Json.TypeNameAssemblyFormatHandling.Simple
 			});
-			//World.root = deserializedProduct.refID;
 
-			//string fileName = "Test2.json";
-			//json = Newtonsoft.Json.JsonConvert.SerializeObject(World.root, Newtonsoft.Json.Formatting.None, new Newtonsoft.Json.JsonSerializerSettings()
-			//{
-			//TypeNameHandling = Newtonsoft.Json.TypeNameHandling.Auto,
-			//	TypeNameAssemblyFormatHandling = Newtonsoft.Json.TypeNameAssemblyFormatHandling.Simple
-			//});
-			//System.IO.File.WriteAllText(fileName, json);
+			KodEBase.RefTable.RefIDDictionary = refTable;
+
+			string filename = "test2.json";
+			json = Newtonsoft.Json.JsonConvert.SerializeObject(RefTable.RefIDDictionary, Newtonsoft.Json.Formatting.None, new Newtonsoft.Json.JsonSerializerSettings()
+			{
+				TypeNameHandling = Newtonsoft.Json.TypeNameHandling.All,
+				TypeNameAssemblyFormatHandling = Newtonsoft.Json.TypeNameAssemblyFormatHandling.Simple
+			});
+			System.IO.File.WriteAllText(filename, json);
+
+			byte[] file1 = System.IO.File.ReadAllBytes(@"C:\Users\koduf\Documents\GitHub\KodVR\Test.json");
+			byte[] file2 = System.IO.File.ReadAllBytes(@"C:\Users\koduf\Documents\GitHub\KodVR\test2.json");
+			if (file1.Length == file2.Length)
+			{
+				for (int i = 0; i < file1.Length; i++)
+				{
+					if (file1[i] != file2[i])
+					{
+						UnityEngine.Debug.LogError("JSON does not match!");
+					}
+				}
+			}
+			else
+			{
+				UnityEngine.Debug.LogError("JSON does not match!");
+			}
+
+
+			RefID rootID = null;
+
+			foreach (KeyValuePair<RefID, WorldElement> e in RefTable.RefIDDictionary)
+			{
+				if (e.Key.id == 1)
+				{
+					rootID = e.Key;
+				}
+			}
+
+			UnityEngine.Debug.Log(RefTable.RefIDDictionary.TryGetValue(rootID, out WorldElement root) ? "Found root" : "Did not find root");
+
+			Slot slot = (Slot)root;
+			currentWorld = new World(slot);
+
+			UnityEngine.Debug.Log(slot);
+			
+			slot.RebalanceHeirarchy();
+
+			onWorldLoaded?.Invoke();
+
+			//RefTable.RefIDDictionary.TryGetValue(new RefID(1, true), out WorldElement rootSlot);
+			//World.root = rootSlot.refID;
+
+			
 		}
 
 		// Will eventually need to duplicate a Unity Netcode manager and set it as a client

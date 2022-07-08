@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using KodEngine.KodEBase;
 
+
 namespace KodEngine.Core
 {
+	
 	public abstract class Component : WorldElement
 	{
 		// Owner is settable in order to allow attaching components. I do not like this solution,
@@ -20,13 +22,24 @@ namespace KodEngine.Core
 		public Component(RefID owner) : base()
 		{
 			this.owner = owner;
+			OnAttach();
 		}
 
-		public Component() : base() { }
+		public Component(RefID owner, bool isEnabled, int updateOrder)
+		{
+			this.owner = owner;
+			this.isEnabled = isEnabled;
+			this.updateOrder = updateOrder;
+			WorldManager.onWorldLoaded += OnInit;
+		}
 
 		public abstract void OnAttach();
 		public abstract void OnUpdate();
 		public abstract void OnChange();
+		public void OnInit()
+		{
+			OnAttach();
+		}
 	}
 }
 

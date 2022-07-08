@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using KodEngine;
+using KodEngine.KodEBase;
 
 namespace KodEngine.Component
 {
@@ -18,6 +19,15 @@ namespace KodEngine.Component
 			set
 			{
 			}
+		}
+
+		public StaticMesh(RefID owner) : base(owner)
+		{
+		}
+
+		[Newtonsoft.Json.JsonConstructor]
+		public StaticMesh(RefID refID, bool isEnabled, int updateOrder) : base(refID, isEnabled, updateOrder)
+		{
 		}
 
 		public override void OnAttach()

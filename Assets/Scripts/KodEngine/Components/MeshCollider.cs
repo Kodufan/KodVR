@@ -3,26 +3,24 @@ using System.Collections.Generic;
 //using UnityEngine;
 using KodEngine.Core;
 using KodEngine.Component;
+using KodEngine.KodEBase;
 
 namespace KodEngine.Component
 {
 	public class MeshCollider : Core.Component
 	{
-		private Mesh _mesh;
-		public Mesh mesh
-		{
-			get
-			{
-				return _mesh;
-			}
-			set
-			{
-				_mesh = value;
-				OnChange();
-			}
-		}
+		public ReferenceField<Mesh> mesh;
 
 		UnityEngine.MeshCollider collider;
+
+		public MeshCollider(RefID owner) : base(owner)
+		{
+		}
+
+		[Newtonsoft.Json.JsonConstructor]
+		public MeshCollider(RefID refID, bool isEnabled, int updateOrder) : base(refID, isEnabled, updateOrder)
+		{
+		}
 
 		public override string helpText
 		{
@@ -38,14 +36,16 @@ namespace KodEngine.Component
 
 		public override void OnAttach()
 		{
+			mesh = new ReferenceField<Mesh>();
 			Engine.OnCommonUpdate += OnUpdate;
-			Slot ownerSlot = (Slot) owner.Resolve();
+			Slot ownerSlot = (Slot)owner.Resolve();
 			collider = ownerSlot.gameObject.AddComponent<UnityEngine.MeshCollider>();
 		}
 
 
 		public override void OnDestroy()
 		{
+			mesh.Destroy();
 		}
 
 		public override void OnUpdate()
@@ -54,9 +54,14 @@ namespace KodEngine.Component
 
 		public override void OnChange()
 		{
-			if (mesh != null)
+		}
+
+		public void SetMesh(RefID refID)
+		{
+			if (refID.ResolveType().IsSubclassOf(typeof(Mesh)))
 			{
-				collider.sharedMesh = mesh.meshFilter.mesh;
+				this.mesh.target = refID;
+				collider.sharedMesh = ((Mesh)refID.Resolve()).meshFilter.sharedMesh;
 			}
 		}
 	}

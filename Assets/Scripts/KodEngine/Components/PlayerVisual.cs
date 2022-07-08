@@ -8,9 +8,6 @@ namespace KodEngine.Component
 {
 	public class PlayerVisual : Core.Component
 	{
-		
-
-
 		public override string helpText
 		{
 			get
@@ -22,6 +19,15 @@ namespace KodEngine.Component
 			}
 		}
 
+		public PlayerVisual(RefID owner) : base(owner)
+		{
+		}
+
+		[Newtonsoft.Json.JsonConstructor]
+		public PlayerVisual(RefID refID, bool isEnabled, int updateOrder) : base(refID, isEnabled, updateOrder)
+		{
+		}
+
 		public override void OnAttach()
 		{
 			Slot ownerSlot = (Slot)owner.Resolve();
@@ -29,8 +35,8 @@ namespace KodEngine.Component
 			PBS_Metallic material = ownerSlot.AttachComponent<PBS_Metallic>();
 			MeshRenderer renderer = ownerSlot.AttachComponent<MeshRenderer>();
 
-			renderer.mesh = mesh;
-			renderer.material = material;
+			renderer.mesh.target = mesh.refID;
+			renderer.material.target = material.refID;
 
 			User user = ownerSlot.TryGetUser();
 			user.networkInstance.changed += OnUpdate;

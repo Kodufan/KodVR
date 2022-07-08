@@ -2,13 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using KodEngine.Core;
+using KodEngine.KodEBase;
 
 namespace KodEngine.Component
 {
 	public class ProceduralSphereMesh : Core.Mesh
 	{
-		public UnityEngine.Mesh sphere { get; set; }
-
 		public override string helpText
 		{
 			get
@@ -18,6 +17,15 @@ namespace KodEngine.Component
 			set
 			{
 			}
+		}
+
+		public ProceduralSphereMesh(RefID owner) : base(owner)
+		{
+		}
+
+		[Newtonsoft.Json.JsonConstructor]
+		public ProceduralSphereMesh(RefID refID, bool isEnabled, int updateOrder) : base(refID, isEnabled, updateOrder)
+		{
 		}
 
 		public override void OnAttach()

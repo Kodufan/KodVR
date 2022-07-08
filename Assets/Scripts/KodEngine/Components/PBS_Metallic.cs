@@ -25,8 +25,8 @@ namespace KodEngine.Component
 			}
 			set
 			{
+				material.color = value.unityColor;
 				_albedo = value;
-				OnChange();
 			}
 		}
 
@@ -41,6 +41,18 @@ namespace KodEngine.Component
 			}
 		}
 
+		public PBS_Metallic(RefID owner) : base(owner)
+		{
+		}
+
+		[Newtonsoft.Json.JsonConstructor]
+		public PBS_Metallic(RefID refID, bool isEnabled, int updateOrder) : base(refID, isEnabled, updateOrder)
+		{
+			// Stinky solution
+			UnityEngine.Shader shader = UnityEngine.Resources.Load<UnityEngine.Shader>("Shaders/Root_Folder/Standard");
+			material = new UnityEngine.Material(shader);
+		}
+
 		public override void OnAttach()
 		{
 			texture = new ReferenceField<Texture2D>();
@@ -53,6 +65,7 @@ namespace KodEngine.Component
 
 		public override void OnDestroy()
 		{
+			texture.Destroy();
 		}
 
 		public override void OnUpdate()
@@ -62,14 +75,22 @@ namespace KodEngine.Component
 
 		public override void OnChange()
 		{
-			material.color = albedo.unityColor;
+		}
 
-			if (texture.refID.Resolve() != null)
+		public void SetTexture(RefID refID)
+		{
+			if (refID.ResolveType() == typeof(Texture2D))
 			{
-				Texture2D texture2D = (Texture2D)texture.refID.Resolve();
-				PropertyInfo textureProperty = typeof(Texture2D).GetProperty("texture");
-				material.mainTexture = (UnityEngine.Texture2D)textureProperty.GetValue(texture2D);
+				texture.target = refID;
+				Texture2D texture2D = (Texture2D)texture.target.Resolve();
+				material.mainTexture = texture2D.texture;
 			}
+		}
+
+		public void SetColor(Color color)
+		{
+			albedo = color;
+			material.color = color.unityColor;
 		}
 	}
 }

@@ -25,6 +25,29 @@ namespace KodEngine.Core
 
 		public event OnDestroy onDestroy;
 
+
+		[Newtonsoft.Json.JsonConstructor]
+		public Slot(string name, string tag, ValueField<Float3> position, ValueField<FloatQ> rotation, ValueField<Float3> scale, ReferenceField<Slot> parent, List<RefID> children, List<RefID> components, ValueField<Bool> isActive, RefID refID)
+		{
+			this.gameObject = new UnityEngine.GameObject(name);
+
+			this.name = name;
+			this.tag = tag;
+			this.position = position;
+			this.rotation = rotation;
+			this.scale = scale;
+			this.parent = parent;
+			this.children = children;
+			this.components = components;
+			this.isActive = isActive;
+			this.refID = refID;
+
+			if (this.parent.target != null)
+			{
+				this.SetParent(this.parent.target);
+			}
+		}
+
 		// Fix constructors so that slots can be created anywhere in a heirarchy and also any session
 		// Also force slots to be placed in sessions
 		public Slot() : this("", "", Float3.zero, FloatQ.identity, Float3.one, null, new Bool(true))
@@ -57,7 +80,7 @@ namespace KodEngine.Core
 
 			if (this.parent.target != null)
 			{
-				this.gameObject.transform.SetParent((this.parent.Resolve()).gameObject.transform);
+				this.SetParent(this.parent.target);
 			}
 		}
 
@@ -90,9 +113,8 @@ namespace KodEngine.Core
 
 		public Slot CreateChild()
 		{
-			Slot newSlot =  new Slot(this.name + " - Child", "", Float3.zero, FloatQ.identity, Float3.one, this.refID, new Bool(true));
+			Slot newSlot =  new Slot(this.name + " - Child", "", Float3.zero, FloatQ.identity, Float3.one, null, new Bool(true));
 			newSlot.SetParent(this.refID);
-			this.children.Add(newSlot.refID);
 			return newSlot;
 		}
 		
@@ -156,23 +178,25 @@ namespace KodEngine.Core
 			cube3.SetPosition(new Float3(0, -0.5f, 0));
 
 			// When a cube is scaled to 0, the renderer will fail and it will turn black
-			cube3.SetScale(new Float3(10, 0.0000f, 10));
+			cube3.SetScale(new Float3(10, 0.00001f, 10));
 
 			Texture2D tex3 = cube3.AttachComponent<Texture2D>();
 			tex3.uri = new System.Uri(@"C:\Users\koduf\Downloads\white_cliff_top_8k.png");
 
 			PBS_Metallic material3 = cube3.AttachComponent<PBS_Metallic>();
-			material3.texture.refID = tex3.refID;
+			material3.SetTexture(tex3.refID);
 
 			ProceduralSphereMesh sphereMesh3 = cube3.AttachComponent<ProceduralSphereMesh>();
 			ProceduralBoxMesh boxMesh3 = cube3.AttachComponent<ProceduralBoxMesh>();
 			MeshRenderer renderer3 = cube3.AttachComponent<MeshRenderer>();
-			material3.albedo = new Color(albedo);
-			renderer3.material = material3;
+			
+			material3.SetColor(new Color(albedo));
 
-			renderer3.mesh = boxMesh3;
+			renderer3.SetMaterial(material3.refID);
+			renderer3.SetMesh(boxMesh3.refID);
 
 			MeshCollider collider3 = cube3.AttachComponent<MeshCollider>();
+			collider3.SetMesh(boxMesh3.refID);
 		}
 		
 		public T GetComponent<T>() where T : Component
@@ -189,14 +213,14 @@ namespace KodEngine.Core
 			return null;
 		}
 
-		public T AttachComponent<T>() where T : Component, new()
+		public T AttachComponent<T>() where T : Component
 		{
 			// This is gross. Component should take a slot as a constructor and then call OnAttach when completed.
-			T component = new T();
+
+			// Hi past me. Fixed that for ya
+			T component = (T)Activator.CreateInstance(typeof(T), new object[] { this.refID });
 			onDestroy += component.Destroy;
 			components.Add(component.refID);
-			component.owner = this.refID;
-			component.OnAttach();
 			return component;
 		}
 
@@ -216,6 +240,16 @@ namespace KodEngine.Core
 		{
 			scale.value = value;
 			gameObject.transform.localScale = value.unityVector3;
+		}
+		
+		public void RebalanceHeirarchy()
+		{
+			foreach (RefID child in children)
+			{
+				Slot childSlot = (Slot)child.Resolve();
+				childSlot.RebalanceHeirarchy();
+			}
+			this.SetParent(parent.target);
 		}
 
 		public override void OnDestroy()

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using KodEngine;
+using KodEngine.KodEBase;
 
 namespace KodEngine.Core
 {
@@ -13,6 +14,15 @@ namespace KodEngine.Core
 		[Newtonsoft.Json.JsonIgnore]
 		public MeshFilter meshFilter;
 
+		protected Mesh(RefID owner) : base(owner)
+		{
+		}
+
+		public Mesh(RefID owner, bool isEnabled, int updateOrder) : base(owner, isEnabled, updateOrder)
+		{
+			this.isEnabled = isEnabled;
+			this.updateOrder = updateOrder;
+		}
 
 		public override void OnAttach()
 		{

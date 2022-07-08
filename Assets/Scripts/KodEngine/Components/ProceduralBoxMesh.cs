@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using KodEngine;
 using KodEngine.Core;
+using KodEngine.KodEBase;
 
 namespace KodEngine.Component
 {
@@ -18,7 +19,15 @@ namespace KodEngine.Component
 			{
 			}
 		}
+		
+		public ProceduralBoxMesh(RefID owner) : base(owner)
+		{
+		}
 
+		[Newtonsoft.Json.JsonConstructor]
+		public ProceduralBoxMesh(RefID refID, bool isEnabled, int updateOrder) : base(refID, isEnabled, updateOrder)
+		{
+		}
 
 		public override void OnAttach()
 		{
