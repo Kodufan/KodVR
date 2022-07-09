@@ -26,7 +26,7 @@ namespace KodEngine.Component
 		}
 
 		[Newtonsoft.Json.JsonConstructor]
-		public StaticMesh(RefID refID, bool isEnabled, int updateOrder) : base(refID, isEnabled, updateOrder)
+		public StaticMesh(RefID refID, RefID owner, bool isEnabled, int updateOrder) : base(refID, owner, isEnabled, updateOrder)
 		{
 		}
 

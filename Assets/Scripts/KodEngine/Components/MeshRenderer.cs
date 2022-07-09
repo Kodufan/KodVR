@@ -21,7 +21,7 @@ namespace KodEngine.Component
 		}
 
 		[Newtonsoft.Json.JsonConstructor]
-		public MeshRenderer(RefID refID, bool isEnabled, int updateOrder) : base(refID, isEnabled, updateOrder)
+		public MeshRenderer(RefID refID, RefID owner, bool isEnabled, int updateOrder) : base(refID, owner, isEnabled, updateOrder)
 		{
 		}
 

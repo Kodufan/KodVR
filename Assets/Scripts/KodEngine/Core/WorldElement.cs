@@ -14,7 +14,7 @@ namespace KodEngine.Core
 		public WorldElement()
 		{
 			refID = new RefID();
-			RefTable.RefIDDictionary.Add(refID, this);
+			Engine.refTable.RefIDDictionary.Add(refID, this);
 		}
 
 		
@@ -22,14 +22,14 @@ namespace KodEngine.Core
 		// This is stupid and bad dumb code.
 		public void SetID(ulong id)
 		{
-			RefTable.RefIDDictionary.Remove(this.refID);
+			Engine.refTable.RefIDDictionary.Remove(this.refID);
 			refID = new RefID(id);
-			RefTable.RefIDDictionary.Add(refID, this);
+			Engine.refTable.RefIDDictionary.Add(refID, this);
 		}
 
 		public void Destroy()
 		{
-			RefTable.RefIDDictionary.Remove(refID);
+			Engine.refTable.RefIDDictionary.Remove(refID);
 			OnDestroy();
 		}
 

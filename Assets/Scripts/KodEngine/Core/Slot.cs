@@ -86,7 +86,7 @@ namespace KodEngine.Core
 
 		public void SetParent(RefID parent)
 		{
-			if (RefTable.RefIDDictionary.ContainsKey(parent) && parent.ResolveType() == typeof(Slot) && this.parent.target != parent)
+			if (Engine.refTable.RefIDDictionary.ContainsKey(parent) && parent.ResolveType() == typeof(Slot))
 			{
 				Slot parentSlot = (Slot)parent.Resolve();
 
@@ -181,12 +181,11 @@ namespace KodEngine.Core
 			cube3.SetScale(new Float3(10, 0.00001f, 10));
 
 			Texture2D tex3 = cube3.AttachComponent<Texture2D>();
-			tex3.uri = new System.Uri(@"C:\Users\koduf\Downloads\white_cliff_top_8k.png");
+			tex3.uri = new System.Uri(@"C:\Program Files (x86)\Steam\userdata\207376680\760\remote\740250\screenshots\20220630194839_1.jpg");
 
 			PBS_Metallic material3 = cube3.AttachComponent<PBS_Metallic>();
 			material3.SetTexture(tex3.refID);
 
-			ProceduralSphereMesh sphereMesh3 = cube3.AttachComponent<ProceduralSphereMesh>();
 			ProceduralBoxMesh boxMesh3 = cube3.AttachComponent<ProceduralBoxMesh>();
 			MeshRenderer renderer3 = cube3.AttachComponent<MeshRenderer>();
 			
@@ -246,10 +245,30 @@ namespace KodEngine.Core
 		{
 			foreach (RefID child in children)
 			{
-				Slot childSlot = (Slot)child.Resolve();
+				// This is very very very bad. Replace this with a dictionary that looks up values based on the ulong ID and not refID memory address.
+				RefID childID = null;
+				foreach (KeyValuePair<RefID, WorldElement> e in Engine.refTable.RefIDDictionary)
+				{
+					if (e.Key.id == child.id)
+					{
+						childID = e.Key;
+					}
+				}
+				Slot childSlot = (Slot)childID.Resolve();
 				childSlot.RebalanceHeirarchy();
 			}
-			this.SetParent(parent.target);
+			if (parent.target != null)
+			{
+				this.SetGameObjectParent(parent.target);
+			}
+		}
+
+		public void SetGameObjectParent(RefID target) 
+		{
+			if (this.parent.target == target)
+			{
+				this.gameObject.transform.SetParent(((Slot)target.Resolve()).gameObject.transform);
+			}
 		}
 
 		public override void OnDestroy()

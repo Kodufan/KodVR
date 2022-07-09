@@ -25,7 +25,7 @@ namespace KodEngine.Component
 		}
 
 		[Newtonsoft.Json.JsonConstructor]
-		public ProceduralBoxMesh(RefID refID, bool isEnabled, int updateOrder) : base(refID, isEnabled, updateOrder)
+		public ProceduralBoxMesh(RefID refID, RefID owner, bool isEnabled, int updateOrder) : base(refID, owner, isEnabled, updateOrder)
 		{
 		}
 

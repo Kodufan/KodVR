@@ -66,7 +66,7 @@ namespace KodEngine.KodEBase
 
 		public T Resolve()
 		{
-			if (target != null && RefTable.RefIDDictionary.ContainsKey(target))
+			if (target != null && Engine.refTable.RefIDDictionary.ContainsKey(target))
 			{
 				return (T)target.Resolve();
 			}
@@ -78,10 +78,22 @@ namespace KodEngine.KodEBase
 			
 		}
 	}
-
+	
 	public class RefTable
 	{
-		public static Dictionary<RefID, WorldElement> RefIDDictionary = new Dictionary<RefID, WorldElement>();
+		public Dictionary<RefID, WorldElement> RefIDDictionary;
+
+		[Newtonsoft.Json.JsonConstructor]
+		public RefTable()
+		{
+			RefIDDictionary = new Dictionary<RefID, WorldElement>();
+		}
+
+		public void Clear()
+		{
+			this.RefIDDictionary.Clear();
+			RefID.ResetID();
+		}
 	}
 	
 
@@ -99,14 +111,22 @@ namespace KodEngine.KodEBase
 		}
 
 		// Do not manually assign RefIDs above RESERVED_IDS. It will break stuff.
-		[Newtonsoft.Json.JsonConstructor]
 		public RefID(ulong id)
 		{
-			this.id = id;
-			if (RefTable.RefIDDictionary.ContainsKey(this))
+			if (Engine.refTable.RefIDDictionary.ContainsKey(this))
 			{
-				throw new System.ArgumentException("RefID is already taken!");
+				UnityEngine.Debug.LogError("RefID already taken!");
 			}
+			else
+			{
+				this.id = id;
+			}
+		}
+
+		[Newtonsoft.Json.JsonConstructor]
+		public RefID(string id)
+		{
+			this.id = ulong.Parse(id);
 		}
 
 		// This is hilariously dumb and stupid. Only used for getting dictionary values
@@ -127,7 +147,7 @@ namespace KodEngine.KodEBase
 
 		public WorldElement Resolve()
 		{
-			if (RefTable.RefIDDictionary.TryGetValue(this, out WorldElement value))
+			if (Engine.refTable.RefIDDictionary.TryGetValue(this, out WorldElement value))
 			{
 				return value;
 			}
@@ -136,7 +156,7 @@ namespace KodEngine.KodEBase
 
 		public System.Type ResolveType()
 		{
-			if (RefTable.RefIDDictionary.TryGetValue(this, out WorldElement value))
+			if (Engine.refTable.RefIDDictionary.TryGetValue(this, out WorldElement value))
 			{
 				return value.GetType();
 			}
@@ -151,6 +171,28 @@ namespace KodEngine.KodEBase
 		public static void DecrementCurrentID()
 		{
 			currID--;
+		}
+
+		public override bool Equals(object obj)
+		{
+			if (obj == null || !(obj is RefID))
+			{
+				return false;
+			}
+			
+			RefID objID = (RefID)obj;
+			if (this.id == objID.id)
+			{
+				return true;
+			} else
+			{
+				return false;
+			}
+		}
+
+		public override int GetHashCode()
+		{
+			return this.id.GetHashCode();
 		}
 	}
 

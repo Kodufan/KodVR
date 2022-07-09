@@ -11,7 +11,6 @@ namespace KodEngine.Core
 	{
 		// Owner is settable in order to allow attaching components. I do not like this solution,
 		// but I do not know how to avoid it
-		[Newtonsoft.Json.JsonIgnore]
 		public RefID owner { get; set; }
 
 		[Newtonsoft.Json.JsonIgnore]
@@ -25,8 +24,9 @@ namespace KodEngine.Core
 			OnAttach();
 		}
 
-		public Component(RefID owner, bool isEnabled, int updateOrder)
+		public Component(RefID refID, RefID owner, bool isEnabled, int updateOrder)
 		{
+			this.refID = refID;
 			this.owner = owner;
 			this.isEnabled = isEnabled;
 			this.updateOrder = updateOrder;
@@ -36,7 +36,7 @@ namespace KodEngine.Core
 		public abstract void OnAttach();
 		public abstract void OnUpdate();
 		public abstract void OnChange();
-		public void OnInit()
+		public virtual void OnInit()
 		{
 			OnAttach();
 		}

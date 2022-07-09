@@ -18,7 +18,7 @@ namespace KodEngine.Component
 		}
 
 		[Newtonsoft.Json.JsonConstructor]
-		public MeshCollider(RefID refID, bool isEnabled, int updateOrder) : base(refID, isEnabled, updateOrder)
+		public MeshCollider(RefID refID, RefID owner, bool isEnabled, int updateOrder) : base(refID, owner, isEnabled, updateOrder)
 		{
 		}
 

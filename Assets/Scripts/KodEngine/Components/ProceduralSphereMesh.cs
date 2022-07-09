@@ -22,9 +22,9 @@ namespace KodEngine.Component
 		public ProceduralSphereMesh(RefID owner) : base(owner)
 		{
 		}
-
+		
 		[Newtonsoft.Json.JsonConstructor]
-		public ProceduralSphereMesh(RefID refID, bool isEnabled, int updateOrder) : base(refID, isEnabled, updateOrder)
+		public ProceduralSphereMesh(RefID refID, RefID owner, bool isEnabled, int updateOrder) : base(refID, owner, isEnabled, updateOrder)
 		{
 		}
 

@@ -13,6 +13,7 @@ namespace KodEngine
 		private UnityInputHandler _unityInputActions;
 		public static InputHandler _inputHandler;
 		public static Core.BuiltInMaterial builtInMaterial;
+		public static RefTable refTable;
 
 		public static event Update OnCommonUpdate;
 		public static event Update OnEngineInit;
@@ -30,6 +31,8 @@ namespace KodEngine
 			WorldManager worldManager = new WorldManager(gameObject);
 
 			_inputHandler.PrimaryInteractAction += Debug;
+
+			refTable = new RefTable();
 
 
 			WorldManager.CreateLocalHome();

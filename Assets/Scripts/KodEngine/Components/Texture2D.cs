@@ -44,8 +44,9 @@ namespace KodEngine.Component
 		}
 
 		[Newtonsoft.Json.JsonConstructor]
-		public Texture2D(RefID refID, bool isEnabled, int updateOrder) : base(refID, isEnabled, updateOrder)
+		public Texture2D(RefID refID, RefID owner, System.Uri uri, bool isEnabled, int updateOrder) : base(refID, owner, isEnabled, updateOrder)
 		{
+			this.uri = uri;
 		}
 
 		public override void OnAttach()
@@ -80,7 +81,7 @@ namespace KodEngine.Component
 				texture.LoadImage(bytes);
 				return texture;
 
-			} catch (System.Exception e)
+			} catch
 			{
 				return (UnityEngine.Texture2D) Engine.builtInMaterial.material.mainTexture;
 			}

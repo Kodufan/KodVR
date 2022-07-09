@@ -46,7 +46,7 @@ namespace KodEngine.Component
 		}
 
 		[Newtonsoft.Json.JsonConstructor]
-		public PBS_Metallic(RefID refID, bool isEnabled, int updateOrder) : base(refID, isEnabled, updateOrder)
+		public PBS_Metallic(RefID refID, RefID owner, bool isEnabled, int updateOrder) : base(refID, owner, isEnabled, updateOrder)
 		{
 			// Stinky solution
 			UnityEngine.Shader shader = UnityEngine.Resources.Load<UnityEngine.Shader>("Shaders/Root_Folder/Standard");

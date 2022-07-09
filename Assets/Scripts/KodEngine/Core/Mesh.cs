@@ -18,7 +18,7 @@ namespace KodEngine.Core
 		{
 		}
 
-		public Mesh(RefID owner, bool isEnabled, int updateOrder) : base(owner, isEnabled, updateOrder)
+		public Mesh(RefID refID, RefID owner, bool isEnabled, int updateOrder) : base(refID, owner, isEnabled, updateOrder)
 		{
 			this.isEnabled = isEnabled;
 			this.updateOrder = updateOrder;

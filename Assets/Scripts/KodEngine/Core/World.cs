@@ -51,7 +51,7 @@ namespace KodEngine.Core
 			Slot rootSlot = new Slot("Root");
 
 			// Preferably make a way to create dedicated reference IDs
-			rootSlot.refID.id = 1;
+			rootSlot.SetID(1);
 			root = rootSlot.refID;
 
 			// Create user list
@@ -78,7 +78,6 @@ namespace KodEngine.Core
 					material.SetTexture(tex.refID);
 
 					ProceduralBoxMesh boxMesh = cube.AttachComponent<ProceduralBoxMesh>();
-					ProceduralSphereMesh sphereMesh = cube.AttachComponent<ProceduralSphereMesh>();
 					MeshRenderer renderer = cube.AttachComponent<MeshRenderer>();
 					renderer.SetMaterial(material.refID);
 					renderer.SetMesh(boxMesh.refID);
@@ -151,6 +150,7 @@ namespace KodEngine.Core
 
 		public static void Destroy()
 		{
+			UnityEngine.Debug.Log("Oh owch my bones also " + worldObject);
 			UnityEngine.GameObject.Destroy(worldObject);
 			((Slot)root.Resolve()).Destroy();
 		}
@@ -191,13 +191,12 @@ namespace KodEngine.Core
 
 			//List<WorldElement> worldElements = new List<WorldElement>(RefTable.RefIDDictionary.Values);
 
-			string json = Newtonsoft.Json.JsonConvert.SerializeObject(RefTable.RefIDDictionary, Newtonsoft.Json.Formatting.None, new Newtonsoft.Json.JsonSerializerSettings()
+			string json = Newtonsoft.Json.JsonConvert.SerializeObject(Engine.refTable, Newtonsoft.Json.Formatting.None, new Newtonsoft.Json.JsonSerializerSettings()
 			{
 				TypeNameHandling = Newtonsoft.Json.TypeNameHandling.All,
 				TypeNameAssemblyFormatHandling = Newtonsoft.Json.TypeNameAssemblyFormatHandling.Simple
 			});
 			System.IO.File.WriteAllText(fileName, json);
-			byte[] jsonBytes = System.Text.Encoding.UTF8.GetBytes(json);
 		}
 
 		public static Slot GetRoot()

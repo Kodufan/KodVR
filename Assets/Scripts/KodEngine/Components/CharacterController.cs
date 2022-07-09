@@ -1,6 +1,7 @@
 using UnityEngine;
 //using UnityEngine.InputSystem;
 using KodEngine.Core;
+using KodEngine.KodEBase;
 
 namespace KodEngine.Component
 {
@@ -73,7 +74,7 @@ namespace KodEngine.Component
 		}
 
 		[Newtonsoft.Json.JsonConstructor]
-		public CharacterController(KodEBase.RefID refID, bool isEnabled, int updateOrder) : base(refID, isEnabled, updateOrder)
+		public CharacterController(RefID refID, RefID owner, bool isEnabled, int updateOrder) : base(refID, owner, isEnabled, updateOrder)
 		{
 		}
 
@@ -223,8 +224,8 @@ namespace KodEngine.Component
 
 		private void OnDrawGizmosSelected()
 		{
-			Color transparentGreen = new Color(0.0f, 1.0f, 0.0f, 0.35f);
-			Color transparentRed = new Color(1.0f, 0.0f, 0.0f, 0.35f);
+			UnityEngine.Color transparentGreen = new UnityEngine.Color(0.0f, 1.0f, 0.0f, 0.35f);
+			UnityEngine.Color transparentRed = new UnityEngine.Color(1.0f, 0.0f, 0.0f, 0.35f);
 
 			if (Grounded) Gizmos.color = transparentGreen;
 			else Gizmos.color = transparentRed;

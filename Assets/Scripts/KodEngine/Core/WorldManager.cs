@@ -46,25 +46,29 @@ namespace KodEngine.Core
 		public static void LoadWorld(string filePath)
 		{
 			World.Destroy();
-			KodEBase.RefID.ResetID();
+			Engine.refTable.Clear();
 
-			if (KodEBase.RefTable.RefIDDictionary.Count != 0)
+			if (Engine.refTable.RefIDDictionary.Count != 0)
 			{
 				UnityEngine.Debug.LogError("World was not fully cleaned up!");
 			}
-
-			string json = System.IO.File.ReadAllText(filePath);
 			
+			string json = System.IO.File.ReadAllText(filePath);
 
-			Dictionary<RefID, WorldElement> refTable = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<RefID, WorldElement>>(json, new Newtonsoft.Json.JsonSerializerSettings() {
+			RefTable refTable = Newtonsoft.Json.JsonConvert.DeserializeObject<RefTable>(json, new Newtonsoft.Json.JsonSerializerSettings() {
 				TypeNameHandling = Newtonsoft.Json.TypeNameHandling.All,
 				TypeNameAssemblyFormatHandling = Newtonsoft.Json.TypeNameAssemblyFormatHandling.Simple
 			});
 
-			KodEBase.RefTable.RefIDDictionary = refTable;
+			Engine.refTable = refTable;
+
+			//foreach (KeyValuePair<RefID, WorldElement> pair in refTable)
+			//{
+			//	RefTable.RefIDDictionary.Add(pair.Key, pair.Value);
+			//}
 
 			string filename = "test2.json";
-			json = Newtonsoft.Json.JsonConvert.SerializeObject(RefTable.RefIDDictionary, Newtonsoft.Json.Formatting.None, new Newtonsoft.Json.JsonSerializerSettings()
+			json = Newtonsoft.Json.JsonConvert.SerializeObject(Engine.refTable, Newtonsoft.Json.Formatting.None, new Newtonsoft.Json.JsonSerializerSettings()
 			{
 				TypeNameHandling = Newtonsoft.Json.TypeNameHandling.All,
 				TypeNameAssemblyFormatHandling = Newtonsoft.Json.TypeNameAssemblyFormatHandling.Simple
@@ -88,25 +92,14 @@ namespace KodEngine.Core
 				UnityEngine.Debug.LogError("JSON does not match!");
 			}
 
+			RefID rootID = new RefID(1);
 
-			RefID rootID = null;
-
-			foreach (KeyValuePair<RefID, WorldElement> e in RefTable.RefIDDictionary)
-			{
-				if (e.Key.id == 1)
-				{
-					rootID = e.Key;
-				}
-			}
-
-			UnityEngine.Debug.Log(RefTable.RefIDDictionary.TryGetValue(rootID, out WorldElement root) ? "Found root" : "Did not find root");
-
-			Slot slot = (Slot)root;
+			Slot slot = (Slot)rootID.Resolve();
 			currentWorld = new World(slot);
-
-			UnityEngine.Debug.Log(slot);
 			
 			slot.RebalanceHeirarchy();
+
+			UnityEngine.Debug.Log("Heirachy rebalanced. Initializing components");
 
 			onWorldLoaded?.Invoke();
 
