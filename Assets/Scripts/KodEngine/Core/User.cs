@@ -9,15 +9,20 @@ namespace KodEngine.Core
 {
 	public delegate void Initialized(User user);
 
-	public class User
+	public class User : WorldElement
 	{
 		public string userName;
 		public string userID;
 		public string machineID;
-		
-		public RefID userRoot { get; set; }
 
+		public RefID userRootField { get; set; }
+		[Newtonsoft.Json.JsonIgnore]
+		private ReferenceField<Slot> _userRoot;
+		
+		[Newtonsoft.Json.JsonIgnore]
 		public PlayerNetworkInstance networkInstance { get; set; }
+
+		[Newtonsoft.Json.JsonIgnore]
 		public ulong unityNetworkID { get; set; }
 
 		public static event Initialized userInitialized;
@@ -26,6 +31,8 @@ namespace KodEngine.Core
 		// Also force slots to be placed in sessions
 		public User(string userName, string userID, string machineID, ulong unityNetworkID)
 		{
+			_userRoot = new ReferenceField<Slot>();
+			userRootField = _userRoot.refID;
 			this.userName = userName;
 			this.userID = userID;
 			this.machineID = machineID;
@@ -38,11 +45,6 @@ namespace KodEngine.Core
 			return userName;
 		}
 
-		public void Destroy()
-		{
-			((Slot)userRoot.Resolve())?.Destroy();
-		}
-
 		public void OnPlayerNetworkInstanceCreated(ulong target)
 		{
 			foreach (ulong uid in Unity.Netcode.NetworkManager.Singleton.ConnectedClientsIds)
@@ -53,6 +55,11 @@ namespace KodEngine.Core
 					userInitialized?.Invoke(this);
 				}
 			}
+		}
+
+		public override void OnDestroy()
+		{
+			((Slot)userRootField.Resolve())?.Destroy();
 		}
 	}
 }

@@ -5,7 +5,7 @@ using KodEngine.KodEBase;
 
 namespace KodEngine.Component
 {
-	public class CharacterController : Core.Component
+	public class UserRoot : Core.Component
 	{
 		[Header("Player")]
 		[Tooltip("Move speed of the character in m/s")]
@@ -69,12 +69,12 @@ namespace KodEngine.Component
 
 		private const float _threshold = 0.01f;
 
-		public CharacterController(KodEBase.RefID owner) : base(owner)
+		public UserRoot(KodEBase.RefID owner) : base(owner)
 		{
 		}
 		
 		[Newtonsoft.Json.JsonConstructor]
-		public CharacterController(RefID refID, RefID owner, bool isEnabled, int updateOrder) : base(refID, owner, isEnabled, updateOrder)
+		public UserRoot(RefID refID, RefID owner, bool isEnabled, int updateOrder) : base(refID, owner, isEnabled, updateOrder)
 		{
 		}
 
@@ -236,6 +236,9 @@ namespace KodEngine.Component
 
 		public override void OnAttach()
 		{
+			// Marks the component as nonpersistant
+			shouldSerialize = false;
+
 			// Create player visual and collider
 			_controllerObject = GameObject.CreatePrimitive(PrimitiveType.Capsule);
 			_controllerObject.name = "Character controller";

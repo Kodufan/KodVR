@@ -26,7 +26,7 @@ namespace KodEngine.Core
 			{
 				if (user.unityNetworkID == uid)
 				{
-					((Slot)user.userRoot.Resolve()).Destroy();
+					((Slot)user.userRootField.Resolve()).Destroy();
 					users.Remove(user);
 					break;
 				}
@@ -57,7 +57,7 @@ namespace KodEngine.Core
 			// Create user list
 			users = new List<User>();
 
-			worldObject = new UnityEngine.GameObject("Hello yes I am world");
+			worldObject = new UnityEngine.GameObject(worldID);
 			worldObject.transform.parent = WorldManager.worldRoot.transform;
 			rootSlot.SetParent(worldObject);
 
@@ -152,14 +152,14 @@ namespace KodEngine.Core
 		{
 			((Slot)root.Resolve()).Destroy();
 			UnityEngine.GameObject.Destroy(worldObject);
+			KodEngine.NetKodE.NetworkManager.Disconnect();
 		}
 
-		//world.AddUser("Username", "UserID", "MachineID", owningWorld, userRoot, networkInstance);
 		public User BuildUser(User user)
 		{
 			user.userName = "Client";
 			Slot userRoot = GetRoot().CreateChild();
-			user.userRoot = userRoot.refID;
+			user.userRootField = userRoot.refID;
 			userRoot.name = user.userName;
 			users.Add(user);
 
@@ -172,26 +172,27 @@ namespace KodEngine.Core
 			user.userName = "Host";
 			Slot userRoot = GetRoot().CreateChild();
 			userRoot.name = user.userName;
-			user.userRoot = userRoot.refID;
+			user.userRootField = userRoot.refID;
 
-			userRoot.AttachComponent<CharacterController>();
+			userRoot.AttachComponent<UserRoot>();
 			users.Add(user);
 			return user;
 		}
 
 		public void ConstructVisual(User user)
 		{
-			((Slot)user.userRoot.Resolve()).AttachComponent<PlayerVisual>();
+			((Slot)user.userRootField.Resolve()).AttachComponent<PlayerVisual>();
 		}
 	
 		public static void SerializeWorld()
 		{
 			string fileName = "Test.json";
 
-			string json = Newtonsoft.Json.JsonConvert.SerializeObject(Engine.refTable, Newtonsoft.Json.Formatting.None, new Newtonsoft.Json.JsonSerializerSettings()
+			string json = Newtonsoft.Json.JsonConvert.SerializeObject(Engine.refTable, Newtonsoft.Json.Formatting.None, new Newtonsoft.Json.JsonSerializerSettings
 			{
 				TypeNameHandling = Newtonsoft.Json.TypeNameHandling.All,
-				TypeNameAssemblyFormatHandling = Newtonsoft.Json.TypeNameAssemblyFormatHandling.Simple
+				TypeNameAssemblyFormatHandling = Newtonsoft.Json.TypeNameAssemblyFormatHandling.Simple,
+				ContractResolver = new SendWorldContractResolver()
 			});
 			System.IO.File.WriteAllText(fileName, json);
 		}

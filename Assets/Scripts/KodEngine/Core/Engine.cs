@@ -40,8 +40,6 @@ namespace KodEngine
 
 			// This marks that the engine has completely initialized and will begin to call Unity methods to finish setup.
 			EngineInit();
-
-			KodEngine.NetKodE.NetworkManager.StartHost();
 		}
 
 		// Update is called once per frame

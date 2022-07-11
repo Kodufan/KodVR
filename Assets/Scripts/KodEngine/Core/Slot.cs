@@ -171,7 +171,7 @@ namespace KodEngine.Core
 		{
 			foreach (User user in World.users)
 			{
-				if (TryGetParentSlot(user.userRoot) != null)
+				if (TryGetParentSlot(user.userRootField) != null)
 				{
 					return user;
 				}

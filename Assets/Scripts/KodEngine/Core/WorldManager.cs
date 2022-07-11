@@ -34,13 +34,20 @@ namespace KodEngine.Core
 			if (worldID == "localhome")
 			{
 				world = new World(worldType, "localhome");
-
+				// TODO: Add check here so that host doesn't start on localhome. Make sure a client doesn't host if they don't want to instead of 
+				// relying on rejecting requests.
 			} else
 			{
 				world = new World(worldType, worldType.ToString());
 			}
 			
 			currentWorld = world;
+			
+			// Bad bad bad dumb stinky
+			if (worldID == "localhome")
+			{
+				KodEngine.NetKodE.NetworkManager.StartHost();
+			}
 		}
 
 		public static void LoadWorld(string filePath)
@@ -57,7 +64,8 @@ namespace KodEngine.Core
 
 			RefTable refTable = Newtonsoft.Json.JsonConvert.DeserializeObject<RefTable>(json, new Newtonsoft.Json.JsonSerializerSettings() {
 				TypeNameHandling = Newtonsoft.Json.TypeNameHandling.All,
-				TypeNameAssemblyFormatHandling = Newtonsoft.Json.TypeNameAssemblyFormatHandling.Simple
+				TypeNameAssemblyFormatHandling = Newtonsoft.Json.TypeNameAssemblyFormatHandling.Simple,
+				ContractResolver = new KodEngine.Core.SendWorldContractResolver()
 			});
 
 			Engine.refTable = refTable;

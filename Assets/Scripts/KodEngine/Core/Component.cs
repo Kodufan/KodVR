@@ -16,10 +16,14 @@ namespace KodEngine.Core
 		[Newtonsoft.Json.JsonIgnore]
 		public abstract string helpText { get; set; }
 		public bool isEnabled { get; set; }
+		public bool isPersistant { get; set; }
+		[Newtonsoft.Json.JsonIgnore]
+		public bool shouldSerialize { get; set; }
 		public int updateOrder { get; set; }
 		
 		public Component(RefID owner) : base(true)
 		{
+			shouldSerialize = true;
 			this.owner = owner;
 			OnAttach();
 		}
@@ -31,6 +35,7 @@ namespace KodEngine.Core
 			this.owner = owner;
 			this.isEnabled = isEnabled;
 			this.updateOrder = updateOrder;
+			shouldSerialize = true;
 			WorldManager.onWorldLoaded += OnInit;
 			Slot ownerSlot = (Slot)owner.Resolve();
 			ownerSlot.onDestroy += OnDestroy;

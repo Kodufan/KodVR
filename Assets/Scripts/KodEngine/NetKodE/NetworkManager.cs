@@ -100,5 +100,18 @@ namespace KodEngine.NetKodE
 			Engine._inputHandler.PrimaryInteractAction += NetworkManager.Change;
 			Unity.Netcode.NetworkManager.Singleton.NetworkConfig.ConnectionData = System.Text.Encoding.ASCII.GetBytes("");
 		}
+
+		public static void StopHost()
+		{
+			Unity.Netcode.NetworkManager.Singleton.Shutdown();
+			Debug.Log("Host stopped!");
+			Engine._inputHandler.PrimaryInteractAction -= NetworkManager.Change;
+		}
+
+		public static void Disconnect()
+		{
+			Unity.Netcode.NetworkManager.Singleton.Shutdown();
+			Debug.Log("Disconnected!");
+		}
 	}
 }
