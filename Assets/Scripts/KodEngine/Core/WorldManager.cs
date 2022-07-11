@@ -62,11 +62,6 @@ namespace KodEngine.Core
 
 			Engine.refTable = refTable;
 
-			//foreach (KeyValuePair<RefID, WorldElement> pair in refTable)
-			//{
-			//	RefTable.RefIDDictionary.Add(pair.Key, pair.Value);
-			//}
-
 			string filename = "test2.json";
 			json = Newtonsoft.Json.JsonConvert.SerializeObject(Engine.refTable, Newtonsoft.Json.Formatting.None, new Newtonsoft.Json.JsonSerializerSettings()
 			{
@@ -96,12 +91,12 @@ namespace KodEngine.Core
 
 			Slot slot = (Slot)rootID.Resolve();
 			currentWorld = new World(slot);
-			
-			slot.RebalanceHeirarchy();
 
-			UnityEngine.Debug.Log("Heirachy rebalanced. Initializing components");
+			UnityEngine.Debug.Log("Initializing WorldObjects...");
 
 			onWorldLoaded?.Invoke();
+
+			slot.RebalanceHeirarchy();
 
 			//RefTable.RefIDDictionary.TryGetValue(new RefID(1, true), out WorldElement rootSlot);
 			//World.root = rootSlot.refID;

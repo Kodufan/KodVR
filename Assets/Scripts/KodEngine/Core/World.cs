@@ -57,7 +57,7 @@ namespace KodEngine.Core
 			// Create user list
 			users = new List<User>();
 
-			worldObject = new UnityEngine.GameObject(type.ToString());
+			worldObject = new UnityEngine.GameObject("Hello yes I am world");
 			worldObject.transform.parent = WorldManager.worldRoot.transform;
 			rootSlot.SetParent(worldObject);
 
@@ -143,18 +143,17 @@ namespace KodEngine.Core
 			// Create user list
 			users = new List<User>();
 
-			UnityEngine.GameObject gameObject = new UnityEngine.GameObject(worldID);
-			gameObject.transform.parent = WorldManager.worldRoot.transform;
-			rootSlot.SetParent(gameObject);
+			worldObject = new UnityEngine.GameObject(worldID);
+			worldObject.transform.parent = WorldManager.worldRoot.transform;
+			rootSlot.SetParent(worldObject);
 		}
 
 		public static void Destroy()
 		{
-			UnityEngine.Debug.Log("Oh owch my bones also " + worldObject);
-			UnityEngine.GameObject.Destroy(worldObject);
 			((Slot)root.Resolve()).Destroy();
+			UnityEngine.GameObject.Destroy(worldObject);
 		}
-		
+
 		//world.AddUser("Username", "UserID", "MachineID", owningWorld, userRoot, networkInstance);
 		public User BuildUser(User user)
 		{
@@ -188,8 +187,6 @@ namespace KodEngine.Core
 		public static void SerializeWorld()
 		{
 			string fileName = "Test.json";
-
-			//List<WorldElement> worldElements = new List<WorldElement>(RefTable.RefIDDictionary.Values);
 
 			string json = Newtonsoft.Json.JsonConvert.SerializeObject(Engine.refTable, Newtonsoft.Json.Formatting.None, new Newtonsoft.Json.JsonSerializerSettings()
 			{

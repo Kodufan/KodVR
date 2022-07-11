@@ -72,7 +72,7 @@ namespace KodEngine.Component
 		public CharacterController(KodEBase.RefID owner) : base(owner)
 		{
 		}
-
+		
 		[Newtonsoft.Json.JsonConstructor]
 		public CharacterController(RefID refID, RefID owner, bool isEnabled, int updateOrder) : base(refID, owner, isEnabled, updateOrder)
 		{

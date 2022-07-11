@@ -9,15 +9,16 @@ namespace KodEngine.Core
 	{
 		public RefID refID;
 
-		// RefIDs of value 0 will auto increment. Any other number, and the ID will be set to that number
-		[Newtonsoft.Json.JsonConstructor]
-		public WorldElement()
+		// This is hilariously bad. The reason this exists is that the deserializer will call this constructor and fuck up the RefIDs,
+		// so I am creating a constructor with an additional parameter so that the deserializer will not call it.
+		public WorldElement(bool doesntMatter)
 		{
 			refID = new RefID();
 			Engine.refTable.RefIDDictionary.Add(refID, this);
 		}
 
-		
+		[Newtonsoft.Json.JsonConstructor]
+		public WorldElement() {}
 
 		// This is stupid and bad dumb code.
 		public void SetID(ulong id)

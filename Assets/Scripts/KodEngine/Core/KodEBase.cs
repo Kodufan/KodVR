@@ -7,7 +7,7 @@ using KodEngine.Core;
 
 namespace KodEngine.KodEBase
 {
-	public class SyncValue<T>
+	public class SyncValue<T> where T : WorldElement
 	{
 		public T value;
 		public RefID refID;
@@ -17,7 +17,7 @@ namespace KodEngine.KodEBase
 	{
 		public T value;
 		
-		public ValueField(T value) : base()
+		public ValueField(T value) : base(true)
 		{
 			if (value == null)
 			{
@@ -26,6 +26,23 @@ namespace KodEngine.KodEBase
 			{
 				this.value = value;
 			}
+		}
+
+		[Newtonsoft.Json.JsonConstructor]
+		public ValueField(T value, RefID refID) : base()
+		{
+			if (value == null)
+				
+			{
+				this.value = (T)System.Activator.CreateInstance(typeof(T));
+			}
+			else
+			{
+				this.value = value;
+			}
+
+			this.refID = refID;
+			Engine.refTable.RefIDDictionary.Add(refID, this);
 		}
 
 		public override void OnDestroy()
@@ -46,7 +63,7 @@ namespace KodEngine.KodEBase
 			set
 			{
 				System.Type refIDType = target?.ResolveType();
-				if (refIDType != typeof(T) && refIDType != null)
+				if (refIDType != typeof(T) && refIDType != null && refIDType.GetType().IsSubclassOf(typeof(T)))
 				{
 					Debug.LogError("ReferenceField: Target is not of type " + typeof(T).Name);
 				}
@@ -59,9 +76,17 @@ namespace KodEngine.KodEBase
 			this.target = target;
 		}
 
-		public ReferenceField() : base()
+		public ReferenceField() : base(true)
 		{
 			
+		}
+		
+		[Newtonsoft.Json.JsonConstructor]
+		public ReferenceField(RefID refID, RefID target) : base()
+		{
+			this.target = target;
+			this.refID = refID;
+			Engine.refTable.RefIDDictionary.Add(refID, this);
 		}
 
 		public T Resolve()
@@ -81,6 +106,11 @@ namespace KodEngine.KodEBase
 	
 	public class RefTable
 	{
+		[Newtonsoft.Json.JsonIgnore]
+		public static readonly ulong RESERVED_IDS = 1000;
+		[Newtonsoft.Json.JsonIgnore]
+		public static ulong currID = RESERVED_IDS;
+		
 		public Dictionary<RefID, WorldElement> RefIDDictionary;
 
 		[Newtonsoft.Json.JsonConstructor]
@@ -88,11 +118,11 @@ namespace KodEngine.KodEBase
 		{
 			RefIDDictionary = new Dictionary<RefID, WorldElement>();
 		}
-
+		
 		public void Clear()
 		{
 			this.RefIDDictionary.Clear();
-			RefID.ResetID();
+			currID = RESERVED_IDS;
 		}
 	}
 	
@@ -100,14 +130,12 @@ namespace KodEngine.KodEBase
 	// Create the ability to "rebalance" world IDs, as currently, it may be possible to run out of IDs by IDs not being flushed when deleted.
 	public class RefID
 	{
-		public static readonly ulong RESERVED_IDS = 1000;
-		private static ulong currID = RESERVED_IDS;
 		public ulong id;
 
 		public RefID()
 		{
-			this.id = currID;
-			currID++;
+			this.id = RefTable.currID;
+			RefTable.currID++;
 		}
 
 		// Do not manually assign RefIDs above RESERVED_IDS. It will break stuff.
@@ -124,7 +152,7 @@ namespace KodEngine.KodEBase
 		}
 
 		[Newtonsoft.Json.JsonConstructor]
-		public RefID(string id)
+		private RefID(string id)
 		{
 			this.id = ulong.Parse(id);
 		}
@@ -163,16 +191,6 @@ namespace KodEngine.KodEBase
 			return null;
 		}
 
-		public static void ResetID()
-		{
-			currID = 1000;
-		}
-
-		public static void DecrementCurrentID()
-		{
-			currID--;
-		}
-
 		public override bool Equals(object obj)
 		{
 			if (obj == null || !(obj is RefID))
@@ -194,6 +212,11 @@ namespace KodEngine.KodEBase
 		{
 			return this.id.GetHashCode();
 		}
+	}
+	
+	public interface IRefID<out T> where T : WorldElement
+	{
+		T Resolve();
 	}
 
 	public interface IValue

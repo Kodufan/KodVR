@@ -35,8 +35,8 @@ namespace KodEngine.Component
 			PBS_Metallic material = ownerSlot.AttachComponent<PBS_Metallic>();
 			MeshRenderer renderer = ownerSlot.AttachComponent<MeshRenderer>();
 
-			renderer.mesh.target = mesh.refID;
-			renderer.material.target = material.refID;
+			((ReferenceField<Mesh>)renderer.meshField.Resolve()).target = mesh.refID;
+			((ReferenceField<PBS_Metallic>)renderer.materialField.Resolve()).target = material.refID;
 
 			User user = ownerSlot.TryGetUser();
 			user.networkInstance.changed += OnUpdate;
@@ -46,7 +46,7 @@ namespace KodEngine.Component
 		{
 			// This is bad dumb code that should be changed later.
 			Slot ownerSlot = (Slot)owner.Resolve();
-			ownerSlot.position.value.unityVector3 = value;
+			((ValueField<Float3>)ownerSlot.positionField.Resolve()).value.unityVector3 = value;
 		}
 
 		public override void OnUpdate()

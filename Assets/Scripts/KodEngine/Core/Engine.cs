@@ -67,15 +67,15 @@ namespace KodEngine
 
 		public void Debug2()
 		{
-			UnityEngine.Debug.Log("Loading world...");
-			WorldManager.LoadWorld(@"C:\Users\koduf\Documents\GitHub\KodVR\Test.json");
 		}
 		
 		public void Debug()
 		{
 			UnityEngine.Debug.Log("Serializing world...");
 			World.SerializeWorld();
-			Debug2();
+			UnityEngine.Debug.Log("Loading world...");
+			WorldManager.LoadWorld(@"C:\Users\koduf\Documents\GitHub\KodVR\Test.json");
+			//Debug2();
 		}
 	}
 }

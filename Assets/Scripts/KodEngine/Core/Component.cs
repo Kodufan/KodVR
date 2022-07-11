@@ -17,20 +17,24 @@ namespace KodEngine.Core
 		public abstract string helpText { get; set; }
 		public bool isEnabled { get; set; }
 		public int updateOrder { get; set; }
-
-		public Component(RefID owner) : base()
+		
+		public Component(RefID owner) : base(true)
 		{
 			this.owner = owner;
 			OnAttach();
 		}
-
-		public Component(RefID refID, RefID owner, bool isEnabled, int updateOrder)
+		
+		public Component(RefID refID, RefID owner, bool isEnabled, int updateOrder) : base()
 		{
+			Engine.refTable.RefIDDictionary.Add(refID, this);
 			this.refID = refID;
 			this.owner = owner;
 			this.isEnabled = isEnabled;
 			this.updateOrder = updateOrder;
 			WorldManager.onWorldLoaded += OnInit;
+			Slot ownerSlot = (Slot)owner.Resolve();
+			ownerSlot.onDestroy += OnDestroy;
+			
 		}
 
 		public abstract void OnAttach();

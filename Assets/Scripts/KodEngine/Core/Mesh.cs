@@ -31,5 +31,11 @@ namespace KodEngine.Core
 			meshObject.transform.parent = ownerSlot.gameObject.transform;
 			meshFilter = meshObject.AddComponent<MeshFilter>();
 		}
+
+		public override void OnDestroy()
+		{
+			UnityEngine.GameObject.Destroy(meshFilter);
+			UnityEngine.GameObject.Destroy(meshObject);
+		}
 	}
 }

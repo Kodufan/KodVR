@@ -12,13 +12,28 @@ namespace KodEngine.Core
 		public string tag;
 		private int orderOffset;
 
-		public ValueField<Float3> position;
-		public ValueField<FloatQ> rotation;
-		public ValueField<Float3> scale;
-		public ReferenceField<Slot> parent;
+		public RefID positionField;
+		[Newtonsoft.Json.JsonIgnore]
+		private ValueField<Float3> _position;
+		
+		public RefID rotationField;
+		[Newtonsoft.Json.JsonIgnore]
+		private ValueField<FloatQ> _rotation;
+		
+		public RefID scaleField;
+		[Newtonsoft.Json.JsonIgnore]
+		private ValueField<Float3> _scale;
+		
+		public RefID parentField;
+		[Newtonsoft.Json.JsonIgnore]
+		private ReferenceField<Slot> _parent;
+		
+		public RefID isActiveField;
+		[Newtonsoft.Json.JsonIgnore]
+		private ValueField<Bool> _isActive;
+		
 		public List<RefID> children;
 		public List<RefID> components;
-		public ValueField<Bool> isActive;
 
 		[Newtonsoft.Json.JsonIgnore]
 		public UnityEngine.GameObject gameObject;
@@ -27,25 +42,22 @@ namespace KodEngine.Core
 
 
 		[Newtonsoft.Json.JsonConstructor]
-		public Slot(string name, string tag, ValueField<Float3> position, ValueField<FloatQ> rotation, ValueField<Float3> scale, ReferenceField<Slot> parent, List<RefID> children, List<RefID> components, ValueField<Bool> isActive, RefID refID)
+		public Slot(string name, string tag, RefID positionField, RefID rotationField, RefID scaleField, RefID parentField, List<RefID> children, List<RefID> components, RefID isActiveField, RefID refID) : base()
 		{
 			this.gameObject = new UnityEngine.GameObject(name);
 
 			this.name = name;
 			this.tag = tag;
-			this.position = position;
-			this.rotation = rotation;
-			this.scale = scale;
-			this.parent = parent;
+			this.positionField = positionField;
+			this.rotationField = rotationField;
+			this.scaleField = scaleField;
+			this.parentField = parentField;
+			this.isActiveField = isActiveField;
 			this.children = children;
 			this.components = components;
-			this.isActive = isActive;
 			this.refID = refID;
-
-			if (this.parent.target != null)
-			{
-				this.SetParent(this.parent.target);
-			}
+			Engine.refTable.RefIDDictionary.Add(refID, this);
+			WorldManager.onWorldLoaded += OnInit;
 		}
 
 		// Fix constructors so that slots can be created anywhere in a heirarchy and also any session
@@ -61,8 +73,8 @@ namespace KodEngine.Core
 		public Slot(string name, string tag, Float3 position, FloatQ rotation, Float3 scale, Bool isActive) : this(name, tag, position, rotation, scale, null, isActive)
 		{
 		}
-
-		public Slot(string name, string tag, Float3 position, FloatQ rotation, Float3 scale, RefID parent, Bool isActive) : base()
+		
+		public Slot(string name, string tag, Float3 position, FloatQ rotation, Float3 scale, RefID parent, Bool isActive) : base(true)
 		{
 			// Must be created first for pos/rot/scale
 			this.gameObject = new UnityEngine.GameObject(name);
@@ -70,17 +82,28 @@ namespace KodEngine.Core
 			this.name = name;
 			this.tag = tag;
 			this.orderOffset = 0;
-			this.position = new ValueField<Float3>(position);
-			this.rotation = new ValueField<FloatQ>(rotation);
-			this.scale = new ValueField<Float3>(scale);
-			this.parent = new ReferenceField<Slot>(parent);
+			
+			this.positionField = new ValueField<Float3>(position).refID;
+			_position = positionField.Resolve() as ValueField<Float3>;
+			
+			this.rotationField = new ValueField<FloatQ>(rotation).refID;
+			_rotation = rotationField.Resolve() as ValueField<FloatQ>;
+			
+			this.scaleField = new ValueField<Float3>(scale).refID;
+			_scale = scaleField.Resolve() as ValueField<Float3>;
+			
+			this.parentField = new ReferenceField<Slot>(parent).refID;
+			_parent = parentField.Resolve() as ReferenceField<Slot>;
+			
+			this.isActiveField = new ValueField<Bool>(isActive).refID;
+			_isActive = isActiveField.Resolve() as ValueField<Bool>;
+			
 			this.children = new List<RefID>();
 			this.components = new List<RefID>();
-			this.isActive = new ValueField<Bool>(isActive);
 
-			if (this.parent.target != null)
+			if (_parent.target != null)
 			{
-				this.SetParent(this.parent.target);
+				this.SetParent(_parent.target);
 			}
 		}
 
@@ -90,13 +113,13 @@ namespace KodEngine.Core
 			{
 				Slot parentSlot = (Slot)parent.Resolve();
 
-				if (this.parent.target != null)
+				if (_parent.target != null)
 				{
-					List<RefID> children = ((Slot)this.parent.target.Resolve()).children;
+					List<RefID> children = ((Slot)_parent.target.Resolve()).children;
 					children.Remove(this.refID);
 				}
 
-				this.parent.target = parent;
+				_parent.target = parent;
 				parentSlot.children.Add(this.refID);
 				this.gameObject.transform.SetParent(parentSlot.gameObject.transform);
 			}
@@ -106,7 +129,7 @@ namespace KodEngine.Core
 		{
 			if (parent != null)
 			{
-				this.parent.target = null;
+				//_parent.target = null;
 				this.gameObject.transform.SetParent(parent.gameObject.transform);
 			}
 		}
@@ -165,7 +188,7 @@ namespace KodEngine.Core
 				{
 					return tempSlot;
 				}
-				tempSlot = tempSlot.parent.Resolve();
+				tempSlot = ((ReferenceField<Slot>)tempSlot.parentField.Resolve()).target.Resolve() as Slot;
 			}
 			return null;
 		}
@@ -218,26 +241,26 @@ namespace KodEngine.Core
 
 			// Hi past me. Fixed that for ya
 			T component = (T)Activator.CreateInstance(typeof(T), new object[] { this.refID });
-			onDestroy += component.Destroy;
+			this.onDestroy += component.Destroy;
 			components.Add(component.refID);
 			return component;
 		}
 
 		public void SetPosition(Float3 value)
 		{
-			position.value = value;
+			_position.value = value;
 			gameObject.transform.localPosition = value.unityVector3;
 		}
 
 		public void SetRotation(FloatQ value)
 		{
-			rotation.value = value;
+			_rotation.value = value;
 			gameObject.transform.localRotation = value.unityQuaternion;
 		}
 
 		public void SetScale(Float3 value)
 		{
-			scale.value = value;
+			_scale.value = value;
 			gameObject.transform.localScale = value.unityVector3;
 		}
 		
@@ -246,26 +269,21 @@ namespace KodEngine.Core
 			foreach (RefID child in children)
 			{
 				// This is very very very bad. Replace this with a dictionary that looks up values based on the ulong ID and not refID memory address.
-				RefID childID = null;
-				foreach (KeyValuePair<RefID, WorldElement> e in Engine.refTable.RefIDDictionary)
-				{
-					if (e.Key.id == child.id)
-					{
-						childID = e.Key;
-					}
-				}
-				Slot childSlot = (Slot)childID.Resolve();
+
+				// I gotchu fam
+				
+				Slot childSlot = (Slot)(new RefID(child.id, true)).Resolve();
 				childSlot.RebalanceHeirarchy();
 			}
-			if (parent.target != null)
+			if (_parent.target != null)
 			{
-				this.SetGameObjectParent(parent.target);
+				this.SetGameObjectParent(_parent.target);
 			}
 		}
 
 		public void SetGameObjectParent(RefID target) 
 		{
-			if (this.parent.target == target)
+			if (_parent.target == target)
 			{
 				this.gameObject.transform.SetParent(((Slot)target.Resolve()).gameObject.transform);
 			}
@@ -273,16 +291,6 @@ namespace KodEngine.Core
 
 		public override void OnDestroy()
 		{
-			// May be better to find a way to bind valuefields to the thing they're attached to and have them call their own destroy with an action.
-			position.Destroy();
-			rotation.Destroy();
-			scale.Destroy();
-			parent.Destroy();
-			isActive.Destroy();
-
-			UnityEngine.Object.Destroy(gameObject);
-			onDestroy?.Invoke();
-
 			while (children.Count > 0)
 			{
 				Slot child = (Slot)children[0].Resolve();
@@ -295,6 +303,32 @@ namespace KodEngine.Core
 				}
 				children.RemoveAt(0);
 			}
+
+			// May be better to find a way to bind valuefields to the thing they're attached to and have them call their own destroy with an action.
+			positionField.Resolve().Destroy();
+			rotationField.Resolve().Destroy();
+			scaleField.Resolve().Destroy();
+			parentField.Resolve().Destroy();
+			isActiveField.Resolve().Destroy();
+
+			UnityEngine.Object.Destroy(gameObject);
+			onDestroy?.Invoke();
+		}
+		
+		public void OnInit()
+		{
+			_position = positionField.Resolve() as ValueField<Float3>;
+			SetPosition(_position.value);
+			
+			_rotation = rotationField.Resolve() as ValueField<FloatQ>;
+			SetRotation(_rotation.value);
+			
+			_scale = scaleField.Resolve() as ValueField<Float3>;
+			SetScale(_scale.value);
+			
+			_parent = parentField.Resolve() as ReferenceField<Slot>;
+			_isActive = isActiveField.Resolve() as ValueField<Bool>;
+
 		}
 	}
 }

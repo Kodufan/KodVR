@@ -3,6 +3,7 @@ using System.Collections.Generic;
 //using UnityEngine;
 using KodEngine.Component;
 using KodEngine.KodEBase;
+using KodEngine.Core;
 
 namespace KodEngine.Component
 {
@@ -13,8 +14,10 @@ namespace KodEngine.Component
 		[Newtonsoft.Json.JsonIgnore]
 		public UnityEngine.Material material { get; set; }
 
-		public ReferenceField<Texture2D> texture;
-
+		public RefID textureField;
+		[Newtonsoft.Json.JsonIgnore]
+		private ReferenceField<Texture2D> _texture;
+		
 		private Color _albedo = new Color(1, 1, 1, 1);
 
 		public Color albedo
@@ -44,10 +47,12 @@ namespace KodEngine.Component
 		public PBS_Metallic(RefID owner) : base(owner)
 		{
 		}
-
+		
 		[Newtonsoft.Json.JsonConstructor]
-		public PBS_Metallic(RefID refID, RefID owner, bool isEnabled, int updateOrder) : base(refID, owner, isEnabled, updateOrder)
+		public PBS_Metallic(RefID refID, RefID textureField, RefID owner, bool isEnabled, int updateOrder) : base(refID, owner, isEnabled, updateOrder)
 		{
+			this.textureField = textureField;
+			
 			// Stinky solution
 			UnityEngine.Shader shader = UnityEngine.Resources.Load<UnityEngine.Shader>("Shaders/Root_Folder/Standard");
 			material = new UnityEngine.Material(shader);
@@ -55,7 +60,12 @@ namespace KodEngine.Component
 
 		public override void OnAttach()
 		{
-			texture = new ReferenceField<Texture2D>();
+			if (textureField == null)
+			{
+				textureField = new ReferenceField<Texture2D>().refID;
+			}
+			_texture = textureField.Resolve() as ReferenceField<Texture2D>;
+			
 			Engine.OnCommonUpdate += OnUpdate;
 			UnityEngine.Shader shader = UnityEngine.Resources.Load<UnityEngine.Shader>("Shaders/Root_Folder/Standard");
 			material = new UnityEngine.Material(shader);
@@ -65,7 +75,7 @@ namespace KodEngine.Component
 
 		public override void OnDestroy()
 		{
-			texture.Destroy();
+			_texture.Destroy();
 		}
 
 		public override void OnUpdate()
@@ -81,8 +91,8 @@ namespace KodEngine.Component
 		{
 			if (refID.ResolveType() == typeof(Texture2D))
 			{
-				texture.target = refID;
-				Texture2D texture2D = (Texture2D)texture.target.Resolve();
+				_texture.target = refID;
+				Texture2D texture2D = (Texture2D)_texture.target.Resolve();
 				material.mainTexture = texture2D.texture;
 			}
 		}
@@ -91,6 +101,12 @@ namespace KodEngine.Component
 		{
 			albedo = color;
 			material.color = color.unityColor;
+		}
+
+		public override void OnInit()
+		{
+			base.OnInit();
+			SetTexture(_texture.target);
 		}
 	}
 }
